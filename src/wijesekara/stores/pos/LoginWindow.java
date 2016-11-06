@@ -28,13 +28,10 @@ public class LoginWindow extends javax.swing.JFrame {
     FileSystemView fw = fr.getFileSystemView();
     Base64Converter base64 = new Base64Converter();
     ConfigureDBWindow config_window;
-    
-    
+
     public LoginWindow() {
         initComponents();
-        
-        
-        
+
         //this belowe code working if config file in user documents not exists.
         File file = new File("config.dat");
         File file_in_library_ms_dir = new File(fw.getDefaultDirectory() + "\\WPOS\\config.dat");
@@ -45,15 +42,15 @@ public class LoginWindow extends javax.swing.JFrame {
             } catch (SecurityException ex) {
                 JOptionPane.showMessageDialog(null, "Cannot create a folder in your document, because of security of your system");
             }
-            
+
             try {
-                
+
                 FileOutputStream writeStream = new FileOutputStream(file, false); // true to append
                 PrintWriter pw = new PrintWriter(writeStream);
                 pw.println("");
                 pw.println("root");
                 pw.println("");
-                pw.println("localhost");
+                pw.println("localhost:3306");
                 pw.println("wijesekarapos");
                 pw.flush();
                 pw.close();
@@ -63,13 +60,44 @@ public class LoginWindow extends javax.swing.JFrame {
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(null, "Error writting to config file!");
             }
+        } else {
+            String username_db = "", password_db = "";
+
+            String line, mysql_uname = "root", mysql_pass = "", mysql_server = "localhost:3306", mysql_db = "wijesekarapos";
+
+            try {
+                base64.decode_from_base64();
+                File temp_config = new File(fw.getDefaultDirectory() + "\\WPOS\\config_temp.dat");
+                FileReader fr = new FileReader(temp_config);
+
+                BufferedReader br = null;
+                if (temp_config.exists()) {
+                    br = new BufferedReader(fr);
+                }
+
+                while ((line = br.readLine()) != null) {
+                    mysql_uname = br.readLine();
+                    mysql_pass = br.readLine();
+                    mysql_server = br.readLine();
+                    mysql_db = br.readLine();
+                }
+                //fetching details from the config file
+                fr.close();
+                br.close();
+                temp_config.delete();
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(null, "Error reading the config file!");
+            }
+
+            MySqlDBConnect dbconclass = new MySqlDBConnect();
+            dbconclass.getDBFromFile(mysql_server, mysql_db, mysql_uname, mysql_pass);
         }
-        
+
         view_config_window();
     }
-    
-    public void view_config_window(){
-        config_window =  new ConfigureDBWindow();
+
+    public void view_config_window() {
+        config_window = new ConfigureDBWindow();
     }
 
     /**
@@ -84,8 +112,8 @@ public class LoginWindow extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jPasswordField1 = new javax.swing.JPasswordField();
+        usernamelog_txt = new javax.swing.JTextField();
+        usernamepasslog_txt = new javax.swing.JPasswordField();
         login_btn = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
@@ -145,8 +173,8 @@ public class LoginWindow extends javax.swing.JFrame {
                                                 .addComponent(jLabel2))
                                             .addGap(46, 46, 46)
                                             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                                .addComponent(jTextField1)
-                                                .addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                                .addComponent(usernamelog_txt)
+                                                .addComponent(usernamepasslog_txt, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE))))
                                     .addGap(16, 16, 16))))
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
@@ -168,11 +196,11 @@ public class LoginWindow extends javax.swing.JFrame {
                         .addGap(33, 33, 33)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel1)
-                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(usernamelog_txt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel2)
-                            .addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(usernamepasslog_txt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(31, 31, 31)
                         .addComponent(login_btn, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 36, Short.MAX_VALUE)
@@ -205,37 +233,28 @@ public class LoginWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_configdbBtnActionPerformed
 
     private void login_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_login_btnActionPerformed
-        String username_db = "", password_db = "";
+        MySqlDBConnect newdb = new MySqlDBConnect();
+        newdb.connectDB();
 
-        String line, mysql_uname = "root", mysql_pass = "", mysql_server = "localhost", mysql_db = "wijesekarapos";
-
-        try {
-            base64.decode_from_base64();
-            File temp_config = new File(fw.getDefaultDirectory() + "\\WPOS\\config_temp.dat");
-            FileReader fr = new FileReader(temp_config);
-
-            BufferedReader br = null;
-            if (temp_config.exists()) {
-                br = new BufferedReader(fr);
+        if (usernamelog_txt.getText().trim().equals("") | usernamepasslog_txt.getText().equals("")) {
+            JOptionPane.showMessageDialog(null, "Please Fill the Required Fields!");
+        } else {
+            String usernamelog = usernamelog_txt.getText().trim();
+            MD5Converter md5cnvtr = new MD5Converter();
+            String usernamepasslog = md5cnvtr.md5(usernamepasslog_txt.getText());
+            
+            if (newdb.loginUser(usernamelog, usernamepasslog)) {
+                MainClassUI run_main_window = new MainClassUI();
+                run_main_window.pack();
+                run_main_window.setLocationRelativeTo(null);
+                run_main_window.setVisible(true);
+                newdb.closeConnection();
+                this.dispose();
+            } else {
+                JOptionPane.showMessageDialog(null, "Username/Password Incorrect!");
+                newdb.closeConnection();
             }
-
-            while ((line = br.readLine()) != null) {
-                mysql_uname = br.readLine();
-                mysql_pass = br.readLine();
-                mysql_server = br.readLine();
-                mysql_db = br.readLine();
-            }
-            //fetching details from the config file
-            fr.close();
-            br.close();
-            temp_config.delete();
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(null, "Error reading the config file!");
         }
-        
-        MySqlDBConnect dbconclass = new MySqlDBConnect();
-        dbconclass.getDBFromFile(mysql_server,mysql_db,mysql_uname,mysql_pass);
-        
     }//GEN-LAST:event_login_btnActionPerformed
 
     /**
@@ -271,15 +290,11 @@ public class LoginWindow extends javax.swing.JFrame {
                 new LoginWindow().setVisible(true);
             }
         });
-        
-        
+
 //        MainClassUI mainwindow = new MainClassUI();
 //        mainwindow.pack();
 //        mainwindow.setLocationRelativeTo(null);
 //        mainwindow.setVisible(true);
-
-          
-        
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -290,8 +305,8 @@ public class LoginWindow extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPasswordField jPasswordField1;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JButton login_btn;
+    private javax.swing.JTextField usernamelog_txt;
+    private javax.swing.JPasswordField usernamepasslog_txt;
     // End of variables declaration//GEN-END:variables
 }

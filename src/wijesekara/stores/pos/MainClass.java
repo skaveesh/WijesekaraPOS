@@ -33,12 +33,13 @@ public class MainClass {
         login.setVisible(true);
         
 
-        MySqlDBConnect newdb = new MySqlDBConnect();
-        newdb.connectDB();
-
-        newdb.showUsers();
-
-        newdb.closeConnection();
+//        MySqlDBConnect newdb = new MySqlDBConnect();
+//        newdb.showcon();
+//        newdb.connectDB();
+//
+//       
+//        
+//        newdb.closeConnection();
     }
 
 }

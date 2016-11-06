@@ -213,6 +213,9 @@ public class ConfigureDBWindow extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(null, "Error writting to config file!");
             }
 
+            MySqlDBConnect dbconclass = new MySqlDBConnect();
+            dbconclass.getDBFromFile(dburlport_txt.getText().trim(), dbname_txt.getText().trim(), dbuname_txt.getText().trim(), dbpass_txt.getText().trim());
+            
             this.dispose();
         } else {
             JOptionPane.showMessageDialog(null, "Server name, Username and Database fields are required!");
