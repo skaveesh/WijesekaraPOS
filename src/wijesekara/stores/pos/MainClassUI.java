@@ -5,8 +5,13 @@
  */
 package wijesekara.stores.pos;
 
+import java.awt.event.KeyEvent;
+import java.util.Iterator;
+import java.util.List;
 import javax.swing.JOptionPane;
+import javax.swing.ListSelectionModel;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -14,11 +19,14 @@ import javax.swing.UnsupportedLookAndFeelException;
  */
 public class MainClassUI extends javax.swing.JFrame {
 
+    int productTableID = 0;
+
     /**
      * Creates new form MainClassUI
      */
     public MainClassUI() {
         initComponents();
+        tableModifier();
     }
 
     /**
@@ -41,9 +49,9 @@ public class MainClassUI extends javax.swing.JFrame {
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
-        jButton7 = new javax.swing.JButton();
-        jButton8 = new javax.swing.JButton();
+        productTable = new javax.swing.JTable();
+        editRowOrder_btn = new javax.swing.JButton();
+        removeRowOrder_btn = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
@@ -58,11 +66,12 @@ public class MainClassUI extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
-        jTextField4 = new javax.swing.JTextField();
-        jTextField5 = new javax.swing.JTextField();
-        jTextField6 = new javax.swing.JTextField();
-        jButton9 = new javax.swing.JButton();
-        jButton10 = new javax.swing.JButton();
+        barcode_txt = new javax.swing.JTextField();
+        quantity_txt = new javax.swing.JTextField();
+        discount_txt = new javax.swing.JTextField();
+        barcodeadd_btn = new javax.swing.JButton();
+        barcodecancel_btn = new javax.swing.JButton();
+        jLabel12 = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
         jPanel8 = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
@@ -70,9 +79,9 @@ public class MainClassUI extends javax.swing.JFrame {
         jLabel9 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
-        jTextField3 = new javax.swing.JTextField();
+        total_txt = new javax.swing.JTextField();
+        paid_txt = new javax.swing.JTextField();
+        due_txt = new javax.swing.JTextField();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem2 = new javax.swing.JMenuItem();
@@ -109,23 +118,38 @@ public class MainClassUI extends javax.swing.JFrame {
 
         jTabbedPane1.setPreferredSize(new java.awt.Dimension(1220, 477));
 
-        jTable1.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        productTable.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        productTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "ID", "Barcode Entry", "Item Number", "Description", "Discount %", "Qty", "Each", "Total"
             }
-        ));
-        jScrollPane1.setViewportView(jTable1);
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false, false
+            };
 
-        jButton7.setText("Edit");
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(productTable);
 
-        jButton8.setText("Remove");
+        editRowOrder_btn.setText("Edit");
+        editRowOrder_btn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                editRowOrder_btnActionPerformed(evt);
+            }
+        });
+
+        removeRowOrder_btn.setText("Remove");
+        removeRowOrder_btn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                removeRowOrder_btnActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -135,9 +159,9 @@ public class MainClassUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 983, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton8, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(removeRowOrder_btn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 94, Short.MAX_VALUE)
+                    .addComponent(editRowOrder_btn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 94, Short.MAX_VALUE))
                 .addContainerGap(14, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
@@ -147,9 +171,9 @@ public class MainClassUI extends javax.swing.JFrame {
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 299, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(editRowOrder_btn, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(19, 19, 19)
-                        .addComponent(jButton8, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(removeRowOrder_btn, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(139, 139, 139))
         );
 
@@ -244,15 +268,35 @@ public class MainClassUI extends javax.swing.JFrame {
 
         jPanel7.setBorder(javax.swing.BorderFactory.createTitledBorder("Entry"));
 
-        jLabel4.setText("SKU Entry :");
+        jLabel4.setText("Barcode Entry :");
 
         jLabel5.setText("Quantity :");
 
-        jLabel6.setText("Discount :");
+        jLabel6.setText("Discount for Each :");
 
-        jButton9.setText("Add");
+        quantity_txt.setToolTipText("");
+        quantity_txt.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                quantity_txtKeyTyped(evt);
+            }
+        });
 
-        jButton10.setText("Cancel");
+        discount_txt.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                discount_txtKeyTyped(evt);
+            }
+        });
+
+        barcodeadd_btn.setText("Add");
+        barcodeadd_btn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                barcodeadd_btnActionPerformed(evt);
+            }
+        });
+
+        barcodecancel_btn.setText("Cancel");
+
+        jLabel12.setText("%");
 
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
         jPanel7.setLayout(jPanel7Layout);
@@ -268,14 +312,16 @@ public class MainClassUI extends javax.swing.JFrame {
                             .addComponent(jLabel6))
                         .addGap(27, 27, 27)
                         .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jTextField4)
-                            .addComponent(jTextField5)
-                            .addComponent(jTextField6, javax.swing.GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE)))
+                            .addComponent(barcode_txt)
+                            .addComponent(quantity_txt)
+                            .addComponent(discount_txt, javax.swing.GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel12))
                     .addGroup(jPanel7Layout.createSequentialGroup()
-                        .addComponent(jButton9, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(barcodeadd_btn, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(jButton10, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(116, Short.MAX_VALUE))
+                        .addComponent(barcodecancel_btn, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(59, Short.MAX_VALUE))
         );
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -283,25 +329,26 @@ public class MainClassUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
-                    .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(barcode_txt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel5)
-                    .addComponent(jTextField5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(quantity_txt, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
-                    .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(discount_txt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel12))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton9)
-                    .addComponent(jButton10))
+                    .addComponent(barcodeadd_btn)
+                    .addComponent(barcodecancel_btn))
                 .addContainerGap())
         );
 
-        jTextField4.getAccessibleContext().setAccessibleName("sku_text");
-        jTextField5.getAccessibleContext().setAccessibleName("qty_text");
-        jTextField6.getAccessibleContext().setAccessibleName("disc_text");
+        barcode_txt.getAccessibleContext().setAccessibleName("sku_text");
+        quantity_txt.getAccessibleContext().setAccessibleName("qty_text");
+        discount_txt.getAccessibleContext().setAccessibleName("disc_text");
 
         jPanel8.setBorder(javax.swing.BorderFactory.createTitledBorder("Total"));
 
@@ -329,9 +376,9 @@ public class MainClassUI extends javax.swing.JFrame {
                     .addComponent(jLabel9))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE)
-                    .addComponent(jTextField2)
-                    .addComponent(jTextField3))
+                    .addComponent(total_txt, javax.swing.GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE)
+                    .addComponent(paid_txt)
+                    .addComponent(due_txt))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel8Layout.createSequentialGroup()
                 .addContainerGap(32, Short.MAX_VALUE)
@@ -346,14 +393,14 @@ public class MainClassUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(total_txt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel8)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(paid_txt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(due_txt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel9))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 31, Short.MAX_VALUE)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -363,9 +410,9 @@ public class MainClassUI extends javax.swing.JFrame {
         );
 
         jLabel10.getAccessibleContext().setAccessibleName("total_label");
-        jTextField1.getAccessibleContext().setAccessibleName("total_text");
-        jTextField2.getAccessibleContext().setAccessibleName("paid_text");
-        jTextField3.getAccessibleContext().setAccessibleName("due_text");
+        total_txt.getAccessibleContext().setAccessibleName("total_text");
+        paid_txt.getAccessibleContext().setAccessibleName("paid_text");
+        due_txt.getAccessibleContext().setAccessibleName("due_text");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -472,25 +519,162 @@ public class MainClassUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    public void tableModifier(){
+        productTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    }
+    
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         int reply = JOptionPane.showConfirmDialog(null,
-                    "Are You Really Want to Quit ?", "Quit", JOptionPane.YES_NO_OPTION);
-            if (reply == JOptionPane.YES_OPTION)
-                System.exit(0);
+                "Are You Really Want to Quit ?", "Quit", JOptionPane.YES_NO_OPTION);
+        if (reply == JOptionPane.YES_OPTION) {
+            System.exit(0);
+        }
     }//GEN-LAST:event_formWindowClosing
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
         int reply = JOptionPane.showConfirmDialog(null,
-                    "Are You Really Want to Quit ?", "Quit", JOptionPane.YES_NO_OPTION);
-            if (reply == JOptionPane.YES_OPTION)
-                System.exit(0);
+                "Are You Really Want to Quit ?", "Quit", JOptionPane.YES_NO_OPTION);
+        if (reply == JOptionPane.YES_OPTION) {
+            System.exit(0);
+        }
     }//GEN-LAST:event_jMenuItem2ActionPerformed
+
+    private void barcodeadd_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_barcodeadd_btnActionPerformed
+        // Enter bacode and press Add button    
+        MySqlDBConnect db = new MySqlDBConnect();
+        db.connectDB();
+
+        //if user didn't enter quantity it will automatically be one
+        //if user didn't enter discount it will automatically be discount value
+        //in the database.
+        int auto_quantity = 1, auto_discount = db.productDiscount(barcode_txt.getText());
+
+        if (!discount_txt.getText().equals("") && Integer.parseInt(discount_txt.getText()) <= 50) {
+            auto_discount = Integer.parseInt(discount_txt.getText());
+        }else if(Integer.parseInt(discount_txt.getText()) > 50){
+            JOptionPane.showMessageDialog(null, "Set the discount below 50%. Default value will be set for now!");
+        }
+
+        if (quantity_txt.getText().equals("")) {
+            auto_quantity = 1;
+        } else {
+            auto_quantity = Integer.parseInt(quantity_txt.getText());
+        }
+
+        List list = db.BarcodeEntryAdd(barcode_txt.getText());
+        if (!list.isEmpty()) //list.forEach(System.out::println);
+        {
+            //check if items are available and then add to the list
+            if (db.productQuantity(barcode_txt.getText()) > 0 && db.productQuantity(barcode_txt.getText()) >= auto_quantity) {
+                boolean previousRecordFound = false;
+                //insert record for the first time
+                if (productTable.getRowCount() == 0) {
+                    DefaultTableModel model = (DefaultTableModel) productTable.getModel();
+                    model.addRow(new Object[]{" " + (++productTableID), list.get(0), list.get(1), list.get(2), auto_discount, auto_quantity, (Float) list.get(3), (((Float) list.get(3) * auto_quantity) - (((Float) list.get(3) * auto_quantity * auto_discount) / 100))});
+                } else if (productTable.getRowCount() > 0) {
+                    //if the same barcode entered before, this will look through the table and edit previously endtered record.
+                    for (int i = 0; i < productTable.getRowCount(); i++) {
+                        if (productTable.getModel().getValueAt(i, 1).equals(barcode_txt.getText())) {
+                            // Edit row if the entry already exists
+                            EditOrderWindow edito = new EditOrderWindow(barcode_txt.getText(),Integer.parseInt(productTable.getModel().getValueAt(i, 5).toString()), Integer.parseInt(productTable.getModel().getValueAt(i, 4).toString()), Float.parseFloat(productTable.getModel().getValueAt(i, 6).toString()));
+                            edito.pack();
+                            edito.setLocationRelativeTo(null);
+                            edito.setVisible(true);
+                            previousRecordFound = true;
+                        }
+                    }
+                    if (!previousRecordFound) {
+                        DefaultTableModel model = (DefaultTableModel) productTable.getModel();
+                        model.addRow(new Object[]{" " + (++productTableID), list.get(0), list.get(1), list.get(2), auto_discount, auto_quantity, (Float) list.get(3), (((Float) list.get(3) * auto_quantity) - (((Float) list.get(3) * auto_quantity * auto_discount) / 100))});
+                    }
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "Products are not available for entered quantity!");
+            }
+
+            System.out.println("barcode " + list.get(0) + " itemnum " + list.get(1) + " decription " + list.get(2) + " price " + (Float) list.get(3) + " discount " + (Integer) list.get(4) + " available_items " + (Integer) list.get(5));
+        } else {
+            JOptionPane.showMessageDialog(null, "Barcode entry error!");
+        }
+
+        db.closeConnection();
+    }//GEN-LAST:event_barcodeadd_btnActionPerformed
+
+    private void editRowOrder_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editRowOrder_btnActionPerformed
+        // Edit row of product orders
+        if (productTable.getSelectedRow() == -1) {
+            JOptionPane.showMessageDialog(null, "Please select a record to edit.");
+        } else {
+            EditOrderWindow edito = new EditOrderWindow(productTable.getValueAt(productTable.getSelectedRow(), 1).toString(),Integer.parseInt(productTable.getModel().getValueAt(productTable.getSelectedRow(), 5).toString()), Integer.parseInt(productTable.getModel().getValueAt(productTable.getSelectedRow(), 4).toString()), Float.parseFloat(productTable.getModel().getValueAt(productTable.getSelectedRow(), 6).toString()));
+            edito.pack();
+            edito.setLocationRelativeTo(null);
+            edito.setVisible(true);
+        }
+    }//GEN-LAST:event_editRowOrder_btnActionPerformed
+
+    private void quantity_txtKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_quantity_txtKeyTyped
+        char c = evt.getKeyChar();
+        if (!((c >= '0') && (c <= '9')
+                || (c == KeyEvent.VK_BACK_SPACE)
+                || (c == KeyEvent.VK_DELETE))) {
+            getToolkit().beep();
+            evt.consume();
+        }
+    }//GEN-LAST:event_quantity_txtKeyTyped
+
+    private void discount_txtKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_discount_txtKeyTyped
+        char c = evt.getKeyChar();
+        if (!((c >= '0') && (c <= '9')
+                || (c == KeyEvent.VK_BACK_SPACE)
+                || (c == KeyEvent.VK_DELETE))) {
+            getToolkit().beep();
+            evt.consume();
+        }
+    }//GEN-LAST:event_discount_txtKeyTyped
+
+    private void removeRowOrder_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeRowOrder_btnActionPerformed
+        // remove selected row
+        if (productTable.getSelectedRow() != -1) {
+            // remove selected row from the model
+            DefaultTableModel model = (DefaultTableModel) productTable.getModel();
+            model.removeRow(productTable.getSelectedRow());
+        }else{
+            JOptionPane.showMessageDialog(null, "Please select a record to delete.");
+        }
+    }//GEN-LAST:event_removeRowOrder_btnActionPerformed
+
+    public static void editRecord(String barcode,int quantity, int discount, float price) {
+        //this method invoke from the EditOrderWindow class
+        MySqlDBConnect db = new MySqlDBConnect();
+        db.connectDB();
+        
+        //check if entered quantity available in the database
+        if(db.productQuantity(barcode) >= quantity && discount <=50){
+            for (int i = 0; i < productTable.getRowCount(); i++) {
+                        if (productTable.getModel().getValueAt(i, 1).equals(barcode)) {
+                            // Search for the row and edit it
+                            DefaultTableModel model = (DefaultTableModel) productTable.getModel();
+                            //model.addRow(new Object[]{" " + (++productTableID), list.get(0), list.get(1), list.get(2), auto_discount, auto_quantity, (Float) list.get(3), (((Float) list.get(3) * auto_quantity) - (((Float) list.get(3) * auto_quantity * auto_discount) / 100))});
+                            model.setValueAt(quantity, i, 5);
+                            model.setValueAt(discount,i,4);
+                            model.setValueAt(price,i,6);
+                            model.setValueAt(((price*quantity)-((price*quantity*discount)/100)),i,7);
+                        }
+                    }
+        }else if(discount >50){
+            JOptionPane.showMessageDialog(null, "Set discount lower than 50%!");
+        }else{
+            JOptionPane.showMessageDialog(null, "Products are not available for entered quantity!");
+        }
+        barcode_txt.getText();
+    }
+    
 
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        
+
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -500,20 +684,23 @@ public class MainClassUI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private static javax.swing.JTextField barcode_txt;
+    private javax.swing.JButton barcodeadd_btn;
+    private javax.swing.JButton barcodecancel_btn;
+    private javax.swing.JTextField discount_txt;
+    private javax.swing.JTextField due_txt;
+    private javax.swing.JButton editRowOrder_btn;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton10;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
-    private javax.swing.JButton jButton7;
-    private javax.swing.JButton jButton8;
-    private javax.swing.JButton jButton9;
     private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -542,14 +729,12 @@ public class MainClassUI extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
-    private javax.swing.JTextField jTextField5;
-    private javax.swing.JTextField jTextField6;
     private javax.swing.JTextField jTextField7;
     private javax.swing.JTextField jTextField8;
+    private javax.swing.JTextField paid_txt;
+    private static javax.swing.JTable productTable;
+    private javax.swing.JTextField quantity_txt;
+    private javax.swing.JButton removeRowOrder_btn;
+    private javax.swing.JTextField total_txt;
     // End of variables declaration//GEN-END:variables
 }

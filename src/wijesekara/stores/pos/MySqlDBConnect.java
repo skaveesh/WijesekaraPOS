@@ -15,6 +15,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JOptionPane;
 
 /**
@@ -34,12 +36,12 @@ public class MySqlDBConnect {
         db_uname = cdb_uname;
         db_password = cdb_password;
 
-        System.out.println(db_urlport + "\n" + db_name + "\n" + db_uname + "\n" + db_password + "\n");
+        //System.out.println(db_urlport + "\n" + db_name + "\n" + db_uname + "\n" + db_password + "\n");
     }
 
-    public void showcon() {
-        System.out.println("hello    " + db_urlport + "\n" + db_name + "\n" + db_uname + "\n" + db_password + "\n");
-    }
+//    public void showcon() {
+//        System.out.println("hello    " + db_urlport + "\n" + db_name + "\n" + db_uname + "\n" + db_password + "\n");
+//    }
 
     public void connectDB() {
 //        if (testInet("http://www.google.com")) {
@@ -89,7 +91,7 @@ public class MySqlDBConnect {
         try {
             stmt = con.createStatement();
 
-            ResultSet rs = stmt.executeQuery("select * from wpos_users");
+            ResultSet rs = stmt.executeQuery("SELECT * FROM wpos_users");
             while (rs.next()) {
                 System.out.println(rs.getInt(1) + "  " + rs.getString(2) + "  " + rs.getString(3));
             }
@@ -102,7 +104,70 @@ public class MySqlDBConnect {
         }
 
     }
+    
+    public List BarcodeEntryAdd(String brcde){
+        List rowValues = new ArrayList();
+        
+        try {
+            stmt = con.createStatement();
 
+            ResultSet rs = stmt.executeQuery("SELECT barcode,itemnum,descr,price,discount,available_items FROM products WHERE barcode='"+brcde+"'");
+            while (rs.next()) {
+                rowValues.add(rs.getString("barcode"));
+                rowValues.add(rs.getString("itemnum"));
+                rowValues.add(rs.getString("descr"));
+                rowValues.add(rs.getFloat("price"));
+                rowValues.add(rs.getInt("discount"));
+                rowValues.add(rs.getInt("available_items"));
+            }
+            rs.close();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Database error!");
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Database error!");
+        }
+        
+        return rowValues;
+    }
+    
+    public int productQuantity(String brcde){
+        int available = 0;
+        try {
+            stmt = con.createStatement();
+
+            ResultSet rs = stmt.executeQuery("SELECT available_items FROM products WHERE barcode='"+brcde+"'");
+            while (rs.next()) {
+                available = rs.getInt("available_items");
+            }
+            rs.close();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Database error!");
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Database error!");
+        }
+        return available;
+    }
+    
+    public int productDiscount(String brcde){
+        int discount = 0;
+        try {
+            stmt = con.createStatement();
+
+            ResultSet rs = stmt.executeQuery("SELECT discount FROM products WHERE barcode='"+brcde+"'");
+            while (rs.next()) {
+                discount = rs.getInt("discount");
+            }
+            rs.close();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Database error!");
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Database error!");
+        }
+        return discount;
+    }
+
+    
+    //close database connection
     public void closeConnection() {
         try {
             stmt.close();
