@@ -5,19 +5,22 @@
  */
 package wijesekara.stores.pos;
 
+import java.awt.event.KeyEvent;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author Samintha
  */
-public class EditOrderWindow extends javax.swing.JFrame{
+public class EditOrderWindow extends javax.swing.JFrame {
 
     /**
      * Creates new form EditOrderWindow
      */
-    static int thisQuantity,thisDiscount;
+    static int thisQuantity, thisDiscount;
     static float thisEPrice;
     static String thisBarcode;
-    
+
     public EditOrderWindow(String passedBarcode, int passedQuantity, int passedDiscount, float passedEPrice) {
         initComponents();
         thisBarcode = passedBarcode;
@@ -29,11 +32,10 @@ public class EditOrderWindow extends javax.swing.JFrame{
         editPrice_txt.setText(Float.toString(thisEPrice));
     }
 
-    public void editRecord(){
-        
-        
+    public void editRecord() {
+
     }
-    
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -55,9 +57,27 @@ public class EditOrderWindow extends javax.swing.JFrame{
 
         jLabel1.setText("Quantity");
 
+        editQty_txt.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                editQty_txtKeyTyped(evt);
+            }
+        });
+
         jLabel2.setText("Discount");
 
         jLabel3.setText("Each Price");
+
+        editDisc_txt.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                editDisc_txtKeyTyped(evt);
+            }
+        });
+
+        editPrice_txt.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                editPrice_txtKeyTyped(evt);
+            }
+        });
 
         editOK_btn.setText("OK");
         editOK_btn.addActionListener(new java.awt.event.ActionListener() {
@@ -112,9 +132,59 @@ public class EditOrderWindow extends javax.swing.JFrame{
 
     private void editOK_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editOK_btnActionPerformed
         //pass values to editRecord in main UI
-        MainClassUI.editRecord(thisBarcode,Integer.parseInt(editQty_txt.getText()),Integer.parseInt(editDisc_txt.getText()),Float.parseFloat(editPrice_txt.getText()));
+        MainClassUI.editRecord(thisBarcode, Integer.parseInt(editQty_txt.getText()), Integer.parseInt(editDisc_txt.getText()), Float.parseFloat(editPrice_txt.getText()));
         this.dispose();
     }//GEN-LAST:event_editOK_btnActionPerformed
+
+    private void editQty_txtKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_editQty_txtKeyTyped
+        char c = evt.getKeyChar();
+        if (!((c >= '0') && (c <= '9')
+                || (c == KeyEvent.VK_BACK_SPACE)
+                || (c == KeyEvent.VK_DELETE))) {
+            getToolkit().beep();
+            evt.consume();
+        }
+    }//GEN-LAST:event_editQty_txtKeyTyped
+
+    private void editDisc_txtKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_editDisc_txtKeyTyped
+        char c = evt.getKeyChar();
+        if (!((c >= '0') && (c <= '9')
+                || (c == KeyEvent.VK_BACK_SPACE)
+                || (c == KeyEvent.VK_DELETE))) {
+            getToolkit().beep();
+            evt.consume();
+        }
+    }//GEN-LAST:event_editDisc_txtKeyTyped
+
+    private void editPrice_txtKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_editPrice_txtKeyTyped
+        if(editPrice_txt.getText().contains(".")){
+            char c = evt.getKeyChar();
+            if (!((c >= '0') && (c <= '9')
+                    || (c == KeyEvent.VK_BACK_SPACE)
+                    || (c == KeyEvent.VK_DELETE))) {
+                getToolkit().beep();
+                evt.consume();
+            }
+        }else if(editPrice_txt.getText().trim().equals("")){
+            char c = evt.getKeyChar();
+            if (!((c >= '0') && (c <= '9')
+                    || (c == KeyEvent.VK_BACK_SPACE)
+                    || (c == KeyEvent.VK_DELETE)
+                    || (c == '.'))) {
+                getToolkit().beep();
+                evt.consume();
+            }
+        }else{
+            char c = evt.getKeyChar();
+            if (!((c >= '0') && (c <= '9')
+                    || (c == KeyEvent.VK_BACK_SPACE)
+                    || (c == KeyEvent.VK_DELETE)
+                    || (c == '.'))) {
+                getToolkit().beep();
+                evt.consume();
+            }
+        }
+    }//GEN-LAST:event_editPrice_txtKeyTyped
 
     /**
      * @param args the command line arguments
@@ -146,7 +216,7 @@ public class EditOrderWindow extends javax.swing.JFrame{
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new EditOrderWindow(thisBarcode,thisQuantity,thisDiscount,thisEPrice).setVisible(true);
+                new EditOrderWindow(thisBarcode, thisQuantity, thisDiscount, thisEPrice).setVisible(true);
             }
         });
     }

@@ -53,7 +53,8 @@ public class MySqlDBConnect {
         } catch (CommunicationsException e) {
             JOptionPane.showMessageDialog(null, "Connection Error");
         } catch (Exception e) {
-            System.out.println(e);
+            JOptionPane.showMessageDialog(null, "Connection Error");
+            e.printStackTrace();
         }
 //        } else {
 //            JOptionPane.showMessageDialog(null, "Server not found.");
@@ -76,8 +77,10 @@ public class MySqlDBConnect {
             rs.close();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Database error!");
+            ex.printStackTrace();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Database error!");
+            ex.printStackTrace();
         }
 
         if (username.equals(username_fromdb) && password.equals(password_fromdb)) {
@@ -99,8 +102,10 @@ public class MySqlDBConnect {
             rs.close();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Database error!");
+            ex.printStackTrace();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Database error!");
+            ex.printStackTrace();
         }
 
     }
@@ -165,7 +170,119 @@ public class MySqlDBConnect {
         }
         return discount;
     }
+    
+    public List LoadSalesmans(){
+        List rowValues = new ArrayList();
+        
+        try {
+            stmt = con.createStatement();
 
+            ResultSet rs = stmt.executeQuery("SELECT display_name FROM salesman");
+            while (rs.next()) {
+                rowValues.add(rs.getString("display_name"));
+            }
+            rs.close();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Database error!");
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Database error!");
+        }
+        
+        return rowValues;
+    }
+    
+    public int getNextOrderId(){
+        int nextOrderID = 0;
+        try {
+            stmt = con.createStatement();
+
+            ResultSet rs = stmt.executeQuery("SELECT order_id FROM transactions WHERE order_id = (SELECT MAX(order_id) FROM transactions)");
+            while (rs.next()) {
+                nextOrderID = rs.getInt("order_id") + 1;
+            }
+            rs.close();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Database error!");
+            ex.printStackTrace();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Database error!");
+            ex.printStackTrace();
+        }
+        
+        return nextOrderID;
+    }
+    
+    public void substractProductQuantity(String brcde, int quantityToSubstract){
+        
+        int finalQuantity = productQuantity(brcde) - quantityToSubstract;
+        
+        try {
+            stmt = con.createStatement();
+            stmt.executeUpdate("UPDATE products SET available_items="+finalQuantity+" WHERE barcode='"+brcde+"'");
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Database error!");
+            ex.printStackTrace();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Database error!");
+            ex.printStackTrace();
+        }
+    }
+    
+    public int getSalesmanID(String salesmanName){
+        int salesmanID = 0;
+        try {
+            stmt = con.createStatement();
+
+            ResultSet rs = stmt.executeQuery("SELECT id FROM salesman WHERE display_name = '"+salesmanName+"' LIMIT 1");
+            while (rs.next()) {
+                salesmanID = rs.getInt("id");
+            }
+            rs.close();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Database error!");
+            ex.printStackTrace();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Database error!");
+            ex.printStackTrace();
+        }
+        
+        return salesmanID;
+    }
+    
+    public int getProductID(String brcde){
+        int PID = 0;
+        try {
+            stmt = con.createStatement();
+
+            ResultSet rs = stmt.executeQuery("SELECT id FROM products WHERE barcode = '"+brcde+"' LIMIT 1");
+            while (rs.next()) {
+                PID = rs.getInt("id");
+            }
+            rs.close();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Database error!");
+            ex.printStackTrace();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Database error!");
+            ex.printStackTrace();
+        }
+        
+        return PID;
+    }
+    
+    public void insertTransaction(int orderID, int productID, float price, int discount, int quantity, float total, int smid){
+        //insert transactions into the database.
+        try {
+            stmt = con.createStatement();
+            stmt.executeUpdate("INSERT INTO transactions(order_id,pid,price,discount,quantity,total,smid) VALUES('"+orderID+"','"+productID+"','"+price+"','"+discount+"','"+quantity+"','"+total+"','"+smid+"')");
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Database error!");
+            ex.printStackTrace();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Database error!");
+            ex.printStackTrace();
+        }
+    }
     
     //close database connection
     public void closeConnection() {

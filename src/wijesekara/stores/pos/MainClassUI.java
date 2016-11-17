@@ -5,11 +5,26 @@
  */
 package wijesekara.stores.pos;
 
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.Timer;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.table.DefaultTableModel;
 
@@ -21,12 +36,51 @@ public class MainClassUI extends javax.swing.JFrame {
 
     int productTableID = 0;
 
+    private class MainClassUIKeyManager implements KeyEventDispatcher {
+
+        //this class controls all the key events
+        //key press events goes here
+        @Override
+        public boolean dispatchKeyEvent(KeyEvent e) {
+            if (e.getID() == KeyEvent.KEY_PRESSED) {
+                //F1
+                if (e.getKeyCode() == KeyEvent.VK_F1) {
+                    // executre clearWholeWindow() on F1 key press
+                    int reply = JOptionPane.showConfirmDialog(null,
+                            "Are You Sure You Want to Clear All and Go for New Transaction?", "New", JOptionPane.YES_NO_OPTION);
+                    if (reply == JOptionPane.YES_OPTION) {
+                        clearWholeWindow();
+                    }
+                }
+
+                //F2
+                if (e.getKeyCode() == KeyEvent.VK_F2) {
+                    // save current transaction to database
+                    int reply = JOptionPane.showConfirmDialog(null,
+                            "Press Yes to Proceed with Save?", "Save", JOptionPane.YES_NO_OPTION);
+                    if (reply == JOptionPane.YES_OPTION) {
+                        if (productTable.getRowCount() > 0) {
+                            save_transaction();
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Please insert items to the order list to proceed.");
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+    }
+
     /**
      * Creates new form MainClassUI
      */
     public MainClassUI() {
         initComponents();
-        tableModifier();
+        autoStart();
+
+        //key events invokes
+        KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        manager.addKeyEventDispatcher(new MainClassUIKeyManager());
     }
 
     /**
@@ -40,8 +94,8 @@ public class MainClassUI extends javax.swing.JFrame {
 
         jMenuItem1 = new javax.swing.JMenuItem();
         jPanel1 = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        newOdr_btn = new javax.swing.JButton();
+        saveOdr_btn = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
@@ -59,9 +113,9 @@ public class MainClassUI extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        jTextField7 = new javax.swing.JTextField();
-        jTextField8 = new javax.swing.JTextField();
-        jComboBox1 = new javax.swing.JComboBox<>();
+        date_txt = new javax.swing.JTextField();
+        time_txt = new javax.swing.JTextField();
+        salesman_combo = new javax.swing.JComboBox<>();
         jPanel7 = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
@@ -77,7 +131,7 @@ public class MainClassUI extends javax.swing.JFrame {
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
-        jLabel10 = new javax.swing.JLabel();
+        total_lbl = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
         total_txt = new javax.swing.JTextField();
         paid_txt = new javax.swing.JTextField();
@@ -94,7 +148,9 @@ public class MainClassUI extends javax.swing.JFrame {
         jMenuItem1.setText("jMenuItem1");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        setTitle("Wijesekara POS");
         setLocation(new java.awt.Point(0, 0));
+        setName("mainFrame"); // NOI18N
         setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
@@ -104,9 +160,19 @@ public class MainClassUI extends javax.swing.JFrame {
 
         jPanel1.setPreferredSize(new java.awt.Dimension(1200, 650));
 
-        jButton1.setLabel("New (F1)");
+        newOdr_btn.setLabel("New (F1)");
+        newOdr_btn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                newOdr_btnActionPerformed(evt);
+            }
+        });
 
-        jButton2.setLabel("Save (F2)");
+        saveOdr_btn.setLabel("Save (F2)");
+        saveOdr_btn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveOdr_btnActionPerformed(evt);
+            }
+        });
 
         jButton3.setText("jButton3");
 
@@ -169,12 +235,12 @@ public class MainClassUI extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 299, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 296, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addComponent(editRowOrder_btn, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(19, 19, 19)
                         .addComponent(removeRowOrder_btn, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(139, 139, 139))
+                .addGap(142, 142, 142))
         );
 
         jTabbedPane1.addTab("Order", jPanel3);
@@ -226,7 +292,13 @@ public class MainClassUI extends javax.swing.JFrame {
 
         jLabel3.setText("Salesman :");
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        date_txt.setDisabledTextColor(new java.awt.Color(0, 0, 0));
+        date_txt.setEnabled(false);
+
+        time_txt.setDisabledTextColor(new java.awt.Color(0, 0, 0));
+        time_txt.setEnabled(false);
+
+        salesman_combo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
@@ -240,9 +312,9 @@ public class MainClassUI extends javax.swing.JFrame {
                     .addComponent(jLabel3))
                 .addGap(30, 30, 30)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jTextField7)
-                    .addComponent(jTextField8)
-                    .addComponent(jComboBox1, 0, 110, Short.MAX_VALUE))
+                    .addComponent(date_txt)
+                    .addComponent(time_txt)
+                    .addComponent(salesman_combo, 0, 110, Short.MAX_VALUE))
                 .addContainerGap(116, Short.MAX_VALUE))
         );
         jPanel6Layout.setVerticalGroup(
@@ -251,20 +323,20 @@ public class MainClassUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(date_txt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(time_txt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(salesman_combo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jTextField7.getAccessibleContext().setAccessibleName("date_text");
-        jTextField8.getAccessibleContext().setAccessibleName("time_text");
+        date_txt.getAccessibleContext().setAccessibleName("date_text");
+        time_txt.getAccessibleContext().setAccessibleName("time_text");
 
         jPanel7.setBorder(javax.swing.BorderFactory.createTitledBorder("Entry"));
 
@@ -295,6 +367,11 @@ public class MainClassUI extends javax.swing.JFrame {
         });
 
         barcodecancel_btn.setText("Cancel");
+        barcodecancel_btn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                barcodecancel_btnActionPerformed(evt);
+            }
+        });
 
         jLabel12.setText("%");
 
@@ -358,11 +435,27 @@ public class MainClassUI extends javax.swing.JFrame {
 
         jLabel9.setText("Due :");
 
-        jLabel10.setFont(new java.awt.Font("Tahoma", 0, 28)); // NOI18N
-        jLabel10.setText("0.00");
+        total_lbl.setFont(new java.awt.Font("Tahoma", 0, 28)); // NOI18N
+        total_lbl.setText("0.0");
 
         jLabel11.setFont(new java.awt.Font("Tahoma", 0, 28)); // NOI18N
         jLabel11.setText("LKR");
+
+        total_txt.setText("0.0");
+        total_txt.setDisabledTextColor(new java.awt.Color(0, 0, 0));
+        total_txt.setEnabled(false);
+
+        paid_txt.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                paid_txtKeyReleased(evt);
+            }
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                paid_txtKeyTyped(evt);
+            }
+        });
+
+        due_txt.setDisabledTextColor(new java.awt.Color(0, 0, 0));
+        due_txt.setEnabled(false);
 
         javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
         jPanel8.setLayout(jPanel8Layout);
@@ -382,7 +475,7 @@ public class MainClassUI extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel8Layout.createSequentialGroup()
                 .addContainerGap(32, Short.MAX_VALUE)
-                .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(total_lbl, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel11)
                 .addGap(110, 110, 110))
@@ -404,12 +497,12 @@ public class MainClassUI extends javax.swing.JFrame {
                     .addComponent(jLabel9))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 31, Short.MAX_VALUE)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel10)
+                    .addComponent(total_lbl)
                     .addComponent(jLabel11))
                 .addContainerGap())
         );
 
-        jLabel10.getAccessibleContext().setAccessibleName("total_label");
+        total_lbl.getAccessibleContext().setAccessibleName("total_label");
         total_txt.getAccessibleContext().setAccessibleName("total_text");
         paid_txt.getAccessibleContext().setAccessibleName("paid_text");
         due_txt.getAccessibleContext().setAccessibleName("due_text");
@@ -432,9 +525,9 @@ public class MainClassUI extends javax.swing.JFrame {
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGap(13, 13, 13)
-                                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(newOdr_btn, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
-                                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(saveOdr_btn, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
                                 .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
@@ -454,8 +547,8 @@ public class MainClassUI extends javax.swing.JFrame {
                     .addComponent(jButton5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButton4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButton3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(saveOdr_btn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(newOdr_btn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -519,10 +612,47 @@ public class MainClassUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    public void tableModifier(){
+    public void autoStart() {
+        //set table to only select one record at a time
         productTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        //right align the total label
+        total_lbl.setHorizontalAlignment(SwingConstants.RIGHT);
+
+        //set text on date_txt and time_txt
+        t.start();
+
+        //load salesmans
+        MySqlDBConnect db = new MySqlDBConnect();
+        db.connectDB();
+
+        List<String> ls = db.LoadSalesmans();
+        salesman_combo.setModel(new DefaultComboBoxModel(ls.toArray()));
+
+        db.closeConnection();
     }
-    
+
+    DateFormat timeF = new SimpleDateFormat("HH:mm:ss");
+    DateFormat dateF = new SimpleDateFormat("dd/MM/yyyy");
+    Timer t = new Timer(500, new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            Date date = new Date();
+            time_txt.setText(timeF.format(date));
+            date_txt.setText(dateF.format(date));
+            repaint();
+        }
+    });
+
+    public static void countTotalAndDisplay() {
+        float total = 0;
+        for (int i = 0; i < productTable.getRowCount(); i++) {
+            total = total + (Float) productTable.getModel().getValueAt(i, 7);
+        }
+        total_lbl.setText(String.format("%.02f", total) + "");
+        total_txt.setText(String.format("%.02f", total) + "");
+    }
+
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         int reply = JOptionPane.showConfirmDialog(null,
                 "Are You Really Want to Quit ?", "Quit", JOptionPane.YES_NO_OPTION);
@@ -551,7 +681,7 @@ public class MainClassUI extends javax.swing.JFrame {
 
         if (!discount_txt.getText().equals("") && Integer.parseInt(discount_txt.getText()) <= 50) {
             auto_discount = Integer.parseInt(discount_txt.getText());
-        }else if(Integer.parseInt(discount_txt.getText()) > 50){
+        } else if (!discount_txt.getText().equals("") && Integer.parseInt(discount_txt.getText()) > 50) {
             JOptionPane.showMessageDialog(null, "Set the discount below 50%. Default value will be set for now!");
         }
 
@@ -576,7 +706,7 @@ public class MainClassUI extends javax.swing.JFrame {
                     for (int i = 0; i < productTable.getRowCount(); i++) {
                         if (productTable.getModel().getValueAt(i, 1).equals(barcode_txt.getText())) {
                             // Edit row if the entry already exists
-                            EditOrderWindow edito = new EditOrderWindow(barcode_txt.getText(),Integer.parseInt(productTable.getModel().getValueAt(i, 5).toString()), Integer.parseInt(productTable.getModel().getValueAt(i, 4).toString()), Float.parseFloat(productTable.getModel().getValueAt(i, 6).toString()));
+                            EditOrderWindow edito = new EditOrderWindow(barcode_txt.getText(), Integer.parseInt(productTable.getModel().getValueAt(i, 5).toString()), Integer.parseInt(productTable.getModel().getValueAt(i, 4).toString()), Float.parseFloat(productTable.getModel().getValueAt(i, 6).toString()));
                             edito.pack();
                             edito.setLocationRelativeTo(null);
                             edito.setVisible(true);
@@ -592,10 +722,20 @@ public class MainClassUI extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(null, "Products are not available for entered quantity!");
             }
 
-            System.out.println("barcode " + list.get(0) + " itemnum " + list.get(1) + " decription " + list.get(2) + " price " + (Float) list.get(3) + " discount " + (Integer) list.get(4) + " available_items " + (Integer) list.get(5));
+            //System.out.println("barcode " + list.get(0) + " itemnum " + list.get(1) + " decription " + list.get(2) + " price " + (Float) list.get(3) + " discount " + (Integer) list.get(4) + " available_items " + (Integer) list.get(5));
         } else {
             JOptionPane.showMessageDialog(null, "Barcode entry error!");
         }
+
+        //show total on text fields
+        countTotalAndDisplay();
+
+        //clear text fields
+        barcode_txt.setText("");
+        quantity_txt.setText("");
+        discount_txt.setText("");
+        paid_txt.setText("");
+        due_txt.setText("");
 
         db.closeConnection();
     }//GEN-LAST:event_barcodeadd_btnActionPerformed
@@ -605,7 +745,7 @@ public class MainClassUI extends javax.swing.JFrame {
         if (productTable.getSelectedRow() == -1) {
             JOptionPane.showMessageDialog(null, "Please select a record to edit.");
         } else {
-            EditOrderWindow edito = new EditOrderWindow(productTable.getValueAt(productTable.getSelectedRow(), 1).toString(),Integer.parseInt(productTable.getModel().getValueAt(productTable.getSelectedRow(), 5).toString()), Integer.parseInt(productTable.getModel().getValueAt(productTable.getSelectedRow(), 4).toString()), Float.parseFloat(productTable.getModel().getValueAt(productTable.getSelectedRow(), 6).toString()));
+            EditOrderWindow edito = new EditOrderWindow(productTable.getValueAt(productTable.getSelectedRow(), 1).toString(), Integer.parseInt(productTable.getModel().getValueAt(productTable.getSelectedRow(), 5).toString()), Integer.parseInt(productTable.getModel().getValueAt(productTable.getSelectedRow(), 4).toString()), Float.parseFloat(productTable.getModel().getValueAt(productTable.getSelectedRow(), 6).toString()));
             edito.pack();
             edito.setLocationRelativeTo(null);
             edito.setVisible(true);
@@ -638,37 +778,145 @@ public class MainClassUI extends javax.swing.JFrame {
             // remove selected row from the model
             DefaultTableModel model = (DefaultTableModel) productTable.getModel();
             model.removeRow(productTable.getSelectedRow());
-        }else{
+            paid_txt.setText("");
+            due_txt.setText("");
+            countTotalAndDisplay();
+        } else {
             JOptionPane.showMessageDialog(null, "Please select a record to delete.");
         }
     }//GEN-LAST:event_removeRowOrder_btnActionPerformed
 
-    public static void editRecord(String barcode,int quantity, int discount, float price) {
+    private void paid_txtKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_paid_txtKeyTyped
+        if (paid_txt.getText().contains(".")) {
+            char c = evt.getKeyChar();
+            if (!((c >= '0') && (c <= '9')
+                    || (c == KeyEvent.VK_BACK_SPACE)
+                    || (c == KeyEvent.VK_DELETE))) {
+                getToolkit().beep();
+                evt.consume();
+            }
+        } else if (paid_txt.getText().trim().equals("")) {
+            char c = evt.getKeyChar();
+            if (!((c >= '0') && (c <= '9')
+                    || (c == KeyEvent.VK_BACK_SPACE)
+                    || (c == KeyEvent.VK_DELETE))) {
+                getToolkit().beep();
+                evt.consume();
+            }
+        } else {
+            char c = evt.getKeyChar();
+            if (!((c >= '0') && (c <= '9')
+                    || (c == KeyEvent.VK_BACK_SPACE)
+                    || (c == KeyEvent.VK_DELETE)
+                    || (c == '.'))) {
+                getToolkit().beep();
+                evt.consume();
+            }
+        }
+    }//GEN-LAST:event_paid_txtKeyTyped
+
+    private void paid_txtKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_paid_txtKeyReleased
+        if ((!paid_txt.getText().trim().equals("") && (Double.parseDouble(total_txt.getText()) <= Double.parseDouble(paid_txt.getText())))) {
+            double due_amount = Double.parseDouble(paid_txt.getText()) - Double.parseDouble(total_txt.getText());
+            due_txt.setText("" + String.format("%.02f", due_amount));
+        } else {
+            due_txt.setText("");
+        }
+    }//GEN-LAST:event_paid_txtKeyReleased
+
+    private void saveOdr_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveOdr_btnActionPerformed
+        // save current transaction to database
+        int reply = JOptionPane.showConfirmDialog(null,
+                "Press Yes to Proceed with Save?", "Save", JOptionPane.YES_NO_OPTION);
+        if (reply == JOptionPane.YES_OPTION) {
+            if (productTable.getRowCount() > 0) {
+                save_transaction();
+            } else {
+                JOptionPane.showMessageDialog(null, "Please insert items to the order list to proceed.");
+            }
+        }
+    }//GEN-LAST:event_saveOdr_btnActionPerformed
+
+    private void barcodecancel_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_barcodecancel_btnActionPerformed
+        barcode_txt.setText("");
+        quantity_txt.setText("");
+        discount_txt.setText("");
+    }//GEN-LAST:event_barcodecancel_btnActionPerformed
+
+    private void newOdr_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newOdr_btnActionPerformed
+        int reply = JOptionPane.showConfirmDialog(null,
+                "Are You Sure You Want to Clear All and Go for New Transaction?", "New", JOptionPane.YES_NO_OPTION);
+        if (reply == JOptionPane.YES_OPTION) {
+            clearWholeWindow();
+        }
+    }//GEN-LAST:event_newOdr_btnActionPerformed
+
+    public void save_transaction() {
+        try {
+            MySqlDBConnect db = new MySqlDBConnect();
+            db.connectDB();
+
+            int orderID = db.getNextOrderId();
+            int smid = db.getSalesmanID((String) salesman_combo.getSelectedItem());
+
+            for (int i = 0; i < productTable.getRowCount(); i++) {
+
+                int productID = db.getProductID((String) productTable.getModel().getValueAt(i, 1));
+                int discount = (int) productTable.getModel().getValueAt(i, 4);
+                int quantity = (int) productTable.getModel().getValueAt(i, 5);
+                float price = (float) productTable.getModel().getValueAt(i, 6);
+                float total = (float) productTable.getModel().getValueAt(i, 7);
+
+                db.substractProductQuantity((String) productTable.getModel().getValueAt(i, 1), (int) productTable.getModel().getValueAt(i, 5));
+                db.insertTransaction(orderID, productID, price, discount, quantity, total, smid);
+            }
+
+            db.closeConnection();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Fatal Error!");
+        }
+    }
+
+    public static void editRecord(String barcode, int quantity, int discount, float price) {
         //this method invoke from the EditOrderWindow class
         MySqlDBConnect db = new MySqlDBConnect();
         db.connectDB();
-        
+
         //check if entered quantity available in the database
-        if(db.productQuantity(barcode) >= quantity && discount <=50){
+        if (db.productQuantity(barcode) >= quantity && discount <= 50) {
             for (int i = 0; i < productTable.getRowCount(); i++) {
-                        if (productTable.getModel().getValueAt(i, 1).equals(barcode)) {
-                            // Search for the row and edit it
-                            DefaultTableModel model = (DefaultTableModel) productTable.getModel();
-                            //model.addRow(new Object[]{" " + (++productTableID), list.get(0), list.get(1), list.get(2), auto_discount, auto_quantity, (Float) list.get(3), (((Float) list.get(3) * auto_quantity) - (((Float) list.get(3) * auto_quantity * auto_discount) / 100))});
-                            model.setValueAt(quantity, i, 5);
-                            model.setValueAt(discount,i,4);
-                            model.setValueAt(price,i,6);
-                            model.setValueAt(((price*quantity)-((price*quantity*discount)/100)),i,7);
-                        }
-                    }
-        }else if(discount >50){
+                if (productTable.getModel().getValueAt(i, 1).equals(barcode)) {
+                    // Search for the row and edit it
+                    DefaultTableModel model = (DefaultTableModel) productTable.getModel();
+                    model.setValueAt(quantity, i, 5);
+                    model.setValueAt(discount, i, 4);
+                    model.setValueAt(price, i, 6);
+                    model.setValueAt(((price * quantity) - ((price * quantity * discount) / 100)), i, 7);
+                }
+            }
+        } else if (discount > 50) {
             JOptionPane.showMessageDialog(null, "Set discount lower than 50%!");
-        }else{
+        } else {
             JOptionPane.showMessageDialog(null, "Products are not available for entered quantity!");
         }
-        barcode_txt.getText();
+        paid_txt.setText("");
+        due_txt.setText("");
+        countTotalAndDisplay();
+        db.closeConnection();
     }
-    
+
+    public void clearWholeWindow() {
+        DefaultTableModel tMOdel = (DefaultTableModel) productTable.getModel();
+        tMOdel.setRowCount(0);
+
+        countTotalAndDisplay();
+
+        barcode_txt.setText("");
+        quantity_txt.setText("");
+        discount_txt.setText("");
+        paid_txt.setText("");
+        due_txt.setText("");
+    }
 
     /**
      * @param args the command line arguments
@@ -687,18 +935,15 @@ public class MainClassUI extends javax.swing.JFrame {
     private static javax.swing.JTextField barcode_txt;
     private javax.swing.JButton barcodeadd_btn;
     private javax.swing.JButton barcodecancel_btn;
+    private javax.swing.JTextField date_txt;
     private javax.swing.JTextField discount_txt;
-    private javax.swing.JTextField due_txt;
+    private static javax.swing.JTextField due_txt;
     private javax.swing.JButton editRowOrder_btn;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
-    private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
@@ -729,12 +974,16 @@ public class MainClassUI extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTextField jTextField7;
-    private javax.swing.JTextField jTextField8;
-    private javax.swing.JTextField paid_txt;
+    private javax.swing.JButton newOdr_btn;
+    private static javax.swing.JTextField paid_txt;
     private static javax.swing.JTable productTable;
     private javax.swing.JTextField quantity_txt;
     private javax.swing.JButton removeRowOrder_btn;
-    private javax.swing.JTextField total_txt;
+    private javax.swing.JComboBox<String> salesman_combo;
+    private javax.swing.JButton saveOdr_btn;
+    private javax.swing.JTextField time_txt;
+    private static javax.swing.JLabel total_lbl;
+    private static javax.swing.JTextField total_txt;
     // End of variables declaration//GEN-END:variables
+
 }
