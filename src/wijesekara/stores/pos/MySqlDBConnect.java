@@ -54,7 +54,7 @@ public class MySqlDBConnect {
             JOptionPane.showMessageDialog(null, "Connection Error");
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Connection Error");
-            e.printStackTrace();
+            //e.printStackTrace();
         }
 //        } else {
 //            JOptionPane.showMessageDialog(null, "Server not found.");
@@ -77,10 +77,10 @@ public class MySqlDBConnect {
             rs.close();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Database error!");
-            ex.printStackTrace();
+            //ex.printStackTrace();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Database error!");
-            ex.printStackTrace();
+            //ex.printStackTrace();
         }
 
         if (username.equals(username_fromdb) && password.equals(password_fromdb)) {
@@ -102,10 +102,10 @@ public class MySqlDBConnect {
             rs.close();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Database error!");
-            ex.printStackTrace();
+            //ex.printStackTrace();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Database error!");
-            ex.printStackTrace();
+            //ex.printStackTrace();
         }
 
     }
@@ -203,10 +203,10 @@ public class MySqlDBConnect {
             rs.close();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Database error!");
-            ex.printStackTrace();
+            //ex.printStackTrace();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Database error!");
-            ex.printStackTrace();
+            //ex.printStackTrace();
         }
         
         return nextOrderID;
@@ -221,10 +221,10 @@ public class MySqlDBConnect {
             stmt.executeUpdate("UPDATE products SET available_items="+finalQuantity+" WHERE barcode='"+brcde+"'");
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Database error!");
-            ex.printStackTrace();
+            //ex.printStackTrace();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Database error!");
-            ex.printStackTrace();
+            //ex.printStackTrace();
         }
     }
     
@@ -240,10 +240,10 @@ public class MySqlDBConnect {
             rs.close();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Database error!");
-            ex.printStackTrace();
+            //ex.printStackTrace();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Database error!");
-            ex.printStackTrace();
+            //ex.printStackTrace();
         }
         
         return salesmanID;
@@ -261,10 +261,10 @@ public class MySqlDBConnect {
             rs.close();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Database error!");
-            ex.printStackTrace();
+            //ex.printStackTrace();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Database error!");
-            ex.printStackTrace();
+            //ex.printStackTrace();
         }
         
         return PID;
@@ -277,10 +277,10 @@ public class MySqlDBConnect {
             stmt.executeUpdate("INSERT INTO transactions(order_id,pid,price,discount,quantity,total,smid) VALUES('"+orderID+"','"+productID+"','"+price+"','"+discount+"','"+quantity+"','"+total+"','"+smid+"')");
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Database error!");
-            ex.printStackTrace();
+            //ex.printStackTrace();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Database error!");
-            ex.printStackTrace();
+            //ex.printStackTrace();
         }
     }
     
