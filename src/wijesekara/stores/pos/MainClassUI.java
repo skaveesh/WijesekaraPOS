@@ -167,7 +167,7 @@ public class MainClassUI extends javax.swing.JFrame {
         jMenu1 = new javax.swing.JMenu();
         exitMenuItem = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
-        jMenuItem3 = new javax.swing.JMenuItem();
+        addUpdateProductMenu = new javax.swing.JMenuItem();
         jMenuItem4 = new javax.swing.JMenuItem();
         addUpdateCustomerMenu = new javax.swing.JMenuItem();
         jMenu6 = new javax.swing.JMenu();
@@ -819,9 +819,14 @@ public class MainClassUI extends javax.swing.JFrame {
 
         jMenu2.setText("Add/Update");
 
-        jMenuItem3.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
-        jMenuItem3.setText("Add/Update Product");
-        jMenu2.add(jMenuItem3);
+        addUpdateProductMenu.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+        addUpdateProductMenu.setText("Add/Update Product");
+        addUpdateProductMenu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addUpdateProductMenuActionPerformed(evt);
+            }
+        });
+        jMenu2.add(addUpdateProductMenu);
 
         jMenuItem4.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
         jMenuItem4.setText("Add/Update Salesman");
@@ -1110,6 +1115,24 @@ public class MainClassUI extends javax.swing.JFrame {
         auc.setVisible(true);
     }//GEN-LAST:event_addUpdateCustomerMenuActionPerformed
 
+    private void addUpdateProductMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addUpdateProductMenuActionPerformed
+        AddUpdateProductUI aup = new AddUpdateProductUI();
+        aup.pack();
+        aup.setLocationRelativeTo(null);
+        
+        //load salesmans
+        Supplier db = new Supplier();
+        db.connectDB();
+
+        List<String> ls = db.LoadSuppliers();
+        aup.ins_supname_cmb.setModel(new DefaultComboBoxModel(ls.toArray()));
+        aup.upd_supname_cmb.setModel(new DefaultComboBoxModel(ls.toArray()));
+        
+        db.closeConnection();
+        
+        aup.setVisible(true);
+    }//GEN-LAST:event_addUpdateProductMenuActionPerformed
+
     public void save_transaction() {
         try {
             MySqlDBConnect db = new MySqlDBConnect();
@@ -1192,6 +1215,7 @@ public class MainClassUI extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem addUpdateCustomerMenu;
+    private javax.swing.JMenuItem addUpdateProductMenu;
     private static javax.swing.JTextField barcode_txt;
     private javax.swing.JButton barcodeadd_btn;
     private javax.swing.JButton barcodecancel_btn;
@@ -1233,7 +1257,6 @@ public class MainClassUI extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu6;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JPanel jPanel1;

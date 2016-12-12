@@ -58,6 +58,7 @@ public class AddUpdateCustomerUI extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Add or Update a Customer");
+        setResizable(false);
 
         jLabel1.setText("Update/Delete Customer");
 
@@ -246,46 +247,50 @@ public class AddUpdateCustomerUI extends javax.swing.JFrame {
     private void upd_cusupdt_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_upd_cusupdt_btnActionPerformed
         Customer cus = new Customer();
         cus.connectDB();
-        if (upd_cusid_txt.getText().equals("") && upd_cusname_txt.getText().equals("") && upd_cuscont_txt.getText().equals("") && upd_cusaddr_txt.getText().equals("") && upd_cusmail_txt.getText().equals("")) {
+        if (upd_cusid_txt.getText().trim().equals("") || upd_cusname_txt.getText().trim().equals("") || upd_cuscont_txt.getText().trim().equals("") || upd_cusaddr_txt.getText().trim().equals("") || upd_cusmail_txt.getText().trim().equals("")) {
             JOptionPane.showMessageDialog(null, "Please Fill Required Fields!");
         } else {
             cus.updateCustomer(upd_cusid_txt.getText(), upd_cusname_txt.getText(), upd_cuscont_txt.getText(), upd_cusaddr_txt.getText(), upd_cusmail_txt.getText());
+            upd_cusid_txt.setText("");
+            upd_cusname_txt.setText("");
+            upd_cuscont_txt.setText("");
+            upd_cusaddr_txt.setText("");
+            upd_cusmail_txt.setText("");
         }
-        upd_cusid_txt.setText("");
-        upd_cusname_txt.setText("");
-        upd_cuscont_txt.setText("");
-        upd_cusaddr_txt.setText("");
-        upd_cusmail_txt.setText("");
         cus.closeConnection();
     }//GEN-LAST:event_upd_cusupdt_btnActionPerformed
 
     private void ins_cusadd_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ins_cusadd_btnActionPerformed
         Customer cus = new Customer();
         cus.connectDB();
-        if (ins_cusname_txt.getText().equals("") && ins_cuscont_txt.getText().equals("") && ins_cusaddr_txt.getText().equals("") && ins_cusmail_txt.getText().equals("")) {
+        if (ins_cusname_txt.getText().trim().equals("") || ins_cuscont_txt.getText().trim().equals("") || ins_cusaddr_txt.getText().trim().equals("")) {
             JOptionPane.showMessageDialog(null, "Please Fill Required Fields!");
         } else {
             cus.createCustomer(ins_cusname_txt.getText(), ins_cuscont_txt.getText(), ins_cusaddr_txt.getText(), ins_cusmail_txt.getText());
+            ins_cusname_txt.setText("");
+            ins_cuscont_txt.setText("");
+            ins_cusaddr_txt.setText("");
+            ins_cusmail_txt.setText("");
         }
-        ins_cusname_txt.setText("");
-        ins_cuscont_txt.setText("");
-        ins_cusaddr_txt.setText("");
-        ins_cusmail_txt.setText("");
         cus.closeConnection();
     }//GEN-LAST:event_ins_cusadd_btnActionPerformed
 
     private void upd_cusdel_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_upd_cusdel_btnActionPerformed
         Customer cus = new Customer();
         cus.connectDB();
-        int reply = JOptionPane.showConfirmDialog(null,
-                "Are you sure want to delete this customer?", "Quit", JOptionPane.YES_NO_OPTION);
-        if (reply == JOptionPane.YES_OPTION) {
-            cus.deleteCustomer(upd_cusid_txt.getText());
-            upd_cusid_txt.setText("");
-            upd_cusname_txt.setText("");
-            upd_cuscont_txt.setText("");
-            upd_cusaddr_txt.setText("");
-            upd_cusmail_txt.setText("");
+        if (upd_cusid_txt.getText().trim().equals("")) {
+            JOptionPane.showMessageDialog(null, "Please Fill Required Fields!");
+        } else {
+            int reply = JOptionPane.showConfirmDialog(null,
+                    "Are you sure want to delete this customer?", "Quit", JOptionPane.YES_NO_OPTION);
+            if (reply == JOptionPane.YES_OPTION) {
+                cus.deleteCustomer(upd_cusid_txt.getText());
+                upd_cusid_txt.setText("");
+                upd_cusname_txt.setText("");
+                upd_cuscont_txt.setText("");
+                upd_cusaddr_txt.setText("");
+                upd_cusmail_txt.setText("");
+            }
         }
         cus.closeConnection();
     }//GEN-LAST:event_upd_cusdel_btnActionPerformed
