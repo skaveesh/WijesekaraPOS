@@ -17,7 +17,6 @@ import javax.swing.JOptionPane;
  */
 public class Customer extends MySqlDBConnect{
     
-
     public boolean isCustomerAvailable(String customerID){
         boolean customerAvailable = false;
         try{

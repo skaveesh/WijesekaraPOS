@@ -57,7 +57,7 @@ public class AddUpdateCustomerUI extends javax.swing.JFrame {
         ins_cusadd_btn = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Add or Update a Customer");
+        setTitle("Add or Update Customer");
         setResizable(false);
 
         jLabel1.setText("Update/Delete Customer");
@@ -77,9 +77,9 @@ public class AddUpdateCustomerUI extends javax.swing.JFrame {
 
         jLabel5.setText("Contact :");
 
-        jLabel6.setText("Address");
+        jLabel6.setText("Address :");
 
-        jLabel7.setText("Email");
+        jLabel7.setText("Email :");
 
         upd_cusdel_btn.setText("Delete Customer");
         upd_cusdel_btn.addActionListener(new java.awt.event.ActionListener() {
@@ -95,9 +95,9 @@ public class AddUpdateCustomerUI extends javax.swing.JFrame {
             }
         });
 
-        jLabel8.setText("Email");
+        jLabel8.setText("Email :");
 
-        jLabel9.setText("Address");
+        jLabel9.setText("Address :");
 
         jLabel10.setText("Contact :");
 

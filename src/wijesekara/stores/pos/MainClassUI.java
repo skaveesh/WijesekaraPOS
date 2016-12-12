@@ -77,7 +77,8 @@ public class MainClassUI extends javax.swing.JFrame {
     public MainClassUI() {
         initComponents();
         autoStart();
-
+        loadSalesmanToCombo();
+        
         //key events invokes
         KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
         manager.addKeyEventDispatcher(new MainClassUIKeyManager());
@@ -168,7 +169,8 @@ public class MainClassUI extends javax.swing.JFrame {
         exitMenuItem = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
         addUpdateProductMenu = new javax.swing.JMenuItem();
-        jMenuItem4 = new javax.swing.JMenuItem();
+        addUpdateSupplierMenu = new javax.swing.JMenuItem();
+        addUpdateSalesmanMenu = new javax.swing.JMenuItem();
         addUpdateCustomerMenu = new javax.swing.JMenuItem();
         jMenu6 = new javax.swing.JMenu();
         jMenuItem5 = new javax.swing.JMenuItem();
@@ -828,9 +830,23 @@ public class MainClassUI extends javax.swing.JFrame {
         });
         jMenu2.add(addUpdateProductMenu);
 
-        jMenuItem4.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
-        jMenuItem4.setText("Add/Update Salesman");
-        jMenu2.add(jMenuItem4);
+        addUpdateSupplierMenu.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+        addUpdateSupplierMenu.setText("Add/Update Supplier");
+        addUpdateSupplierMenu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addUpdateSupplierMenuActionPerformed(evt);
+            }
+        });
+        jMenu2.add(addUpdateSupplierMenu);
+
+        addUpdateSalesmanMenu.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+        addUpdateSalesmanMenu.setText("Add/Update Salesman");
+        addUpdateSalesmanMenu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addUpdateSalesmanMenuActionPerformed(evt);
+            }
+        });
+        jMenu2.add(addUpdateSalesmanMenu);
 
         addUpdateCustomerMenu.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
         addUpdateCustomerMenu.setText("Add/Update Customer");
@@ -878,7 +894,9 @@ public class MainClassUI extends javax.swing.JFrame {
 
         //set text on date_txt and time_txt
         t.start();
-
+    }
+    
+    public static void loadSalesmanToCombo(){
         //load salesmans
         MySqlDBConnect db = new MySqlDBConnect();
         db.connectDB();
@@ -1119,7 +1137,7 @@ public class MainClassUI extends javax.swing.JFrame {
         AddUpdateProductUI aup = new AddUpdateProductUI();
         aup.pack();
         aup.setLocationRelativeTo(null);
-        
+
         //load salesmans
         Supplier db = new Supplier();
         db.connectDB();
@@ -1127,11 +1145,25 @@ public class MainClassUI extends javax.swing.JFrame {
         List<String> ls = db.LoadSuppliers();
         aup.ins_supname_cmb.setModel(new DefaultComboBoxModel(ls.toArray()));
         aup.upd_supname_cmb.setModel(new DefaultComboBoxModel(ls.toArray()));
-        
+
         db.closeConnection();
-        
+
         aup.setVisible(true);
     }//GEN-LAST:event_addUpdateProductMenuActionPerformed
+
+    private void addUpdateSupplierMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addUpdateSupplierMenuActionPerformed
+        AddUpdateSupplierUI aus = new AddUpdateSupplierUI();
+        aus.pack();
+        aus.setLocationRelativeTo(null);
+        aus.setVisible(true);
+    }//GEN-LAST:event_addUpdateSupplierMenuActionPerformed
+
+    private void addUpdateSalesmanMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addUpdateSalesmanMenuActionPerformed
+        AddUpdateSalesmanUI aus = new AddUpdateSalesmanUI();
+        aus.pack();
+        aus.setLocationRelativeTo(null);
+        aus.setVisible(true);
+    }//GEN-LAST:event_addUpdateSalesmanMenuActionPerformed
 
     public void save_transaction() {
         try {
@@ -1216,6 +1248,8 @@ public class MainClassUI extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem addUpdateCustomerMenu;
     private javax.swing.JMenuItem addUpdateProductMenu;
+    private javax.swing.JMenuItem addUpdateSalesmanMenu;
+    private javax.swing.JMenuItem addUpdateSupplierMenu;
     private static javax.swing.JTextField barcode_txt;
     private javax.swing.JButton barcodeadd_btn;
     private javax.swing.JButton barcodecancel_btn;
@@ -1257,7 +1291,6 @@ public class MainClassUI extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu6;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
@@ -1289,7 +1322,7 @@ public class MainClassUI extends javax.swing.JFrame {
     private static javax.swing.JTable productTable;
     private javax.swing.JTextField quantity_txt;
     private javax.swing.JButton removeRowOrder_btn;
-    private javax.swing.JComboBox<String> salesman_combo;
+    private static javax.swing.JComboBox<String> salesman_combo;
     private javax.swing.JButton saveOdr_btn;
     private javax.swing.JTextField time_txt;
     private static javax.swing.JLabel total_lbl;

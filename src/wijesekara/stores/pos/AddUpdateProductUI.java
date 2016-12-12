@@ -69,7 +69,7 @@ public class AddUpdateProductUI extends javax.swing.JFrame {
         ins_prdavailable_spn = new javax.swing.JSpinner();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Add Update Product");
+        setTitle("Add or Update Product");
         setResizable(false);
 
         jLabel1.setText("Update/Delete Product");
