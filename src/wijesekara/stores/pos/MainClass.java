@@ -5,9 +5,9 @@
  */
 package wijesekara.stores.pos;
 
+import java.util.Timer;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-
 
 /**
  *
@@ -26,20 +26,14 @@ public class MainClass {
 
         }
 
-        
         LoginWindow login = new LoginWindow();
         login.pack();
         login.setLocationRelativeTo(null);
         login.setVisible(true);
         
-
-//        MySqlDBConnect newdb = new MySqlDBConnect();
-//        newdb.showcon();
-//        newdb.connectDB();
-//
-//       
-//        
-//        newdb.closeConnection();
+        //this method will execute BarcodeReader.class clss file
+        //every 1000 millisecond
+        Timer timer = new Timer();
+        timer.schedule(new BarcodeReader(), 0, 1000);
     }
-
 }

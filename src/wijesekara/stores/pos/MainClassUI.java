@@ -66,6 +66,12 @@ public class MainClassUI extends javax.swing.JFrame {
                         }
                     }
                 }
+                
+                //F9
+                if (e.getKeyCode() == KeyEvent.VK_F9) {
+                    //refresh all
+                    loadSalesmanToComboAndAllTables();
+                }
             }
             return false;
         }
@@ -77,7 +83,7 @@ public class MainClassUI extends javax.swing.JFrame {
     public MainClassUI() {
         initComponents();
         autoStart();
-        loadSalesmanToCombo();
+        loadSalesmanToComboAndAllTables();
         
         //key events invokes
         KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
@@ -99,7 +105,7 @@ public class MainClassUI extends javax.swing.JFrame {
         saveOdr_btn = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
-        jButton5 = new javax.swing.JButton();
+        refreshAll_btn = new javax.swing.JButton();
         jButton6 = new javax.swing.JButton();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel3 = new javax.swing.JPanel();
@@ -109,14 +115,14 @@ public class MainClassUI extends javax.swing.JFrame {
         removeRowOrder_btn = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        transactionsDisplayTable = new javax.swing.JTable();
         jTextField1 = new javax.swing.JTextField();
         jLabel10 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jPanel9 = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
-        jTable3 = new javax.swing.JTable();
+        productDisplayTable = new javax.swing.JTable();
         jLabel14 = new javax.swing.JLabel();
         jTextField3 = new javax.swing.JTextField();
         jLabel15 = new javax.swing.JLabel();
@@ -125,14 +131,14 @@ public class MainClassUI extends javax.swing.JFrame {
         jButton10 = new javax.swing.JButton();
         jPanel5 = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
-        jTable2 = new javax.swing.JTable();
+        supplierDisplayTable = new javax.swing.JTable();
         jLabel16 = new javax.swing.JLabel();
         jTextField5 = new javax.swing.JTextField();
         jButton11 = new javax.swing.JButton();
         jButton12 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane5 = new javax.swing.JScrollPane();
-        jTable4 = new javax.swing.JTable();
+        customerDisplayTable = new javax.swing.JTable();
         jLabel13 = new javax.swing.JLabel();
         jTextField2 = new javax.swing.JTextField();
         jButton7 = new javax.swing.JButton();
@@ -206,12 +212,22 @@ public class MainClassUI extends javax.swing.JFrame {
 
         jButton3.setText("Doc (F3)");
         jButton3.setToolTipText("Save as Document");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         jButton4.setText("Print (F5)");
         jButton4.setToolTipText("Save and Print ");
 
-        jButton5.setText("Refr. (F9)");
-        jButton5.setToolTipText("Refresh All the Tables");
+        refreshAll_btn.setText("Refr. (F9)");
+        refreshAll_btn.setToolTipText("Refresh All the Tables");
+        refreshAll_btn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                refreshAll_btnActionPerformed(evt);
+            }
+        });
 
         jButton6.setText("jButton6");
 
@@ -281,12 +297,12 @@ public class MainClassUI extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Order", jPanel3);
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        transactionsDisplayTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "Transaction ID", "Order ID", "Product ID", "Sold Price", "On Discount", "Quantity", "Total On Product", "Salesman", "Time"
+                "Transaction ID", "Order ID", "Product Item Num", "Sold Price", "On Discount", "Quantity", "Total On Product", "Salesman", "Time"
             }
         ) {
             boolean[] canEdit = new boolean [] {
@@ -297,7 +313,7 @@ public class MainClassUI extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane2.setViewportView(jTable1);
+        jScrollPane2.setViewportView(transactionsDisplayTable);
 
         jLabel10.setText("<html>Search<br />Order :</html>");
 
@@ -343,7 +359,7 @@ public class MainClassUI extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Transactions", jPanel4);
 
-        jTable3.setModel(new javax.swing.table.DefaultTableModel(
+        productDisplayTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -359,7 +375,7 @@ public class MainClassUI extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane4.setViewportView(jTable3);
+        jScrollPane4.setViewportView(productDisplayTable);
 
         jLabel14.setText("<html>Search Item<br />By Barcode<html>");
 
@@ -413,23 +429,23 @@ public class MainClassUI extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Products", jPanel9);
 
-        jTable2.setModel(new javax.swing.table.DefaultTableModel(
+        supplierDisplayTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "Supplier ID", "Name", "Contact", "Address"
+                "Supplier ID", "Name", "Contact", "Address", "Email"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false
+                false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane3.setViewportView(jTable2);
+        jScrollPane3.setViewportView(supplierDisplayTable);
 
         jLabel16.setText("<html>Search Supplier<br />by Name</html>");
 
@@ -474,7 +490,7 @@ public class MainClassUI extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Suppliers", jPanel5);
 
-        jTable4.setModel(new javax.swing.table.DefaultTableModel(
+        customerDisplayTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -482,7 +498,7 @@ public class MainClassUI extends javax.swing.JFrame {
                 "Customer ID", "Customer Name", "Contact", "Address", "Email"
             }
         ));
-        jScrollPane5.setViewportView(jTable4);
+        jScrollPane5.setViewportView(customerDisplayTable);
 
         jLabel13.setText("<html>Search Customer<br />by Name:</html>");
 
@@ -776,7 +792,7 @@ public class MainClassUI extends javax.swing.JFrame {
                                 .addGap(18, 18, 18)
                                 .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
-                                .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(refreshAll_btn, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
                                 .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1124, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -787,7 +803,7 @@ public class MainClassUI extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(jButton5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(refreshAll_btn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButton4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButton3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(saveOdr_btn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -896,7 +912,7 @@ public class MainClassUI extends javax.swing.JFrame {
         t.start();
     }
     
-    public static void loadSalesmanToCombo(){
+    public static void loadSalesmanToComboAndAllTables(){
         //load salesmans
         MySqlDBConnect db = new MySqlDBConnect();
         db.connectDB();
@@ -904,6 +920,8 @@ public class MainClassUI extends javax.swing.JFrame {
         List<String> ls = db.LoadSalesmans();
         salesman_combo.setModel(new DefaultComboBoxModel(ls.toArray()));
 
+        db.refreshAllTables();
+        
         db.closeConnection();
     }
 
@@ -1165,6 +1183,15 @@ public class MainClassUI extends javax.swing.JFrame {
         aus.setVisible(true);
     }//GEN-LAST:event_addUpdateSalesmanMenuActionPerformed
 
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void refreshAll_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshAll_btnActionPerformed
+        //refresh all
+        loadSalesmanToComboAndAllTables();
+    }//GEN-LAST:event_refreshAll_btnActionPerformed
+
     public void save_transaction() {
         try {
             MySqlDBConnect db = new MySqlDBConnect();
@@ -1250,9 +1277,10 @@ public class MainClassUI extends javax.swing.JFrame {
     private javax.swing.JMenuItem addUpdateProductMenu;
     private javax.swing.JMenuItem addUpdateSalesmanMenu;
     private javax.swing.JMenuItem addUpdateSupplierMenu;
-    private static javax.swing.JTextField barcode_txt;
+    public static javax.swing.JTextField barcode_txt;
     private javax.swing.JButton barcodeadd_btn;
     private javax.swing.JButton barcodecancel_btn;
+    public static javax.swing.JTable customerDisplayTable;
     private javax.swing.JTextField date_txt;
     private javax.swing.JTextField discount_txt;
     private static javax.swing.JTextField due_txt;
@@ -1265,7 +1293,6 @@ public class MainClassUI extends javax.swing.JFrame {
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton7;
     private javax.swing.JButton jButton8;
@@ -1308,10 +1335,6 @@ public class MainClassUI extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTable jTable2;
-    private javax.swing.JTable jTable3;
-    private javax.swing.JTable jTable4;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
@@ -1319,14 +1342,18 @@ public class MainClassUI extends javax.swing.JFrame {
     private javax.swing.JTextField jTextField5;
     private javax.swing.JButton newOdr_btn;
     private static javax.swing.JTextField paid_txt;
+    public static javax.swing.JTable productDisplayTable;
     private static javax.swing.JTable productTable;
     private javax.swing.JTextField quantity_txt;
+    private javax.swing.JButton refreshAll_btn;
     private javax.swing.JButton removeRowOrder_btn;
     private static javax.swing.JComboBox<String> salesman_combo;
     private javax.swing.JButton saveOdr_btn;
+    public static javax.swing.JTable supplierDisplayTable;
     private javax.swing.JTextField time_txt;
     private static javax.swing.JLabel total_lbl;
     private static javax.swing.JTextField total_txt;
+    public static javax.swing.JTable transactionsDisplayTable;
     // End of variables declaration//GEN-END:variables
 
 }

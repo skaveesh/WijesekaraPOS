@@ -63,7 +63,7 @@ public class Salesman extends MySqlDBConnect {
             JOptionPane.showMessageDialog(null, "Successfully Inserted!");
 
             //re-load salesmans
-            MainClassUI.loadSalesmanToCombo();
+            MainClassUI.loadSalesmanToComboAndAllTables();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Database error!");
         } catch (Exception ex) {
@@ -79,7 +79,7 @@ public class Salesman extends MySqlDBConnect {
                 JOptionPane.showMessageDialog(null, "Update Successful!");
 
                 //re-load salesmans
-                MainClassUI.loadSalesmanToCombo();
+                MainClassUI.loadSalesmanToComboAndAllTables();
             } catch (SQLException ex) {
                 JOptionPane.showMessageDialog(null, "Database error!");
             } catch (Exception ex) {
@@ -98,7 +98,7 @@ public class Salesman extends MySqlDBConnect {
                 JOptionPane.showMessageDialog(null, "Delete Successful!");
 
                 //re-load salesmans
-                MainClassUI.loadSalesmanToCombo();
+                MainClassUI.loadSalesmanToComboAndAllTables();
             } catch (SQLException ex) {
                 JOptionPane.showMessageDialog(null, "Database error!");
             } catch (Exception ex) {

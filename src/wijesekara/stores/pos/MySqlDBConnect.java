@@ -18,6 +18,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -42,7 +43,6 @@ public class MySqlDBConnect {
 //    public void showcon() {
 //        System.out.println("hello    " + db_urlport + "\n" + db_name + "\n" + db_uname + "\n" + db_password + "\n");
 //    }
-
     public void connectDB() {
 //        if (testInet("http://www.google.com")) {
         try {
@@ -109,14 +109,14 @@ public class MySqlDBConnect {
         }
 
     }
-    
-    public List BarcodeEntryAdd(String brcde){
+
+    public List BarcodeEntryAdd(String brcde) {
         List rowValues = new ArrayList();
-        
+
         try {
             stmt = con.createStatement();
 
-            ResultSet rs = stmt.executeQuery("SELECT barcode,itemnum,descr,price,discount,available_items FROM products WHERE barcode='"+brcde+"'");
+            ResultSet rs = stmt.executeQuery("SELECT barcode,itemnum,descr,price,discount,available_items FROM products WHERE barcode='" + brcde + "'");
             while (rs.next()) {
                 rowValues.add(rs.getString("barcode"));
                 rowValues.add(rs.getString("itemnum"));
@@ -131,16 +131,16 @@ public class MySqlDBConnect {
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Database error!");
         }
-        
+
         return rowValues;
     }
-    
-    public int productQuantity(String brcde){
+
+    public int productQuantity(String brcde) {
         int available = 0;
         try {
             stmt = con.createStatement();
 
-            ResultSet rs = stmt.executeQuery("SELECT available_items FROM products WHERE barcode='"+brcde+"'");
+            ResultSet rs = stmt.executeQuery("SELECT available_items FROM products WHERE barcode='" + brcde + "'");
             while (rs.next()) {
                 available = rs.getInt("available_items");
             }
@@ -152,13 +152,13 @@ public class MySqlDBConnect {
         }
         return available;
     }
-    
-    public int productDiscount(String brcde){
+
+    public int productDiscount(String brcde) {
         int discount = 0;
         try {
             stmt = con.createStatement();
 
-            ResultSet rs = stmt.executeQuery("SELECT discount FROM products WHERE barcode='"+brcde+"'");
+            ResultSet rs = stmt.executeQuery("SELECT discount FROM products WHERE barcode='" + brcde + "'");
             while (rs.next()) {
                 discount = rs.getInt("discount");
             }
@@ -170,10 +170,10 @@ public class MySqlDBConnect {
         }
         return discount;
     }
-    
-    public List LoadSalesmans(){
+
+    public List LoadSalesmans() {
         List rowValues = new ArrayList();
-        
+
         try {
             stmt = con.createStatement();
 
@@ -187,11 +187,11 @@ public class MySqlDBConnect {
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Database error!");
         }
-        
+
         return rowValues;
     }
-    
-    public int getNextOrderId(){
+
+    public int getNextOrderId() {
         int nextOrderID = 0;
         try {
             stmt = con.createStatement();
@@ -208,17 +208,17 @@ public class MySqlDBConnect {
             JOptionPane.showMessageDialog(null, "Database error!");
             //ex.printStackTrace();
         }
-        
+
         return nextOrderID;
     }
-    
-    public void substractProductQuantity(String brcde, int quantityToSubstract){
-        
+
+    public void substractProductQuantity(String brcde, int quantityToSubstract) {
+
         int finalQuantity = productQuantity(brcde) - quantityToSubstract;
-        
+
         try {
             stmt = con.createStatement();
-            stmt.executeUpdate("UPDATE products SET available_items="+finalQuantity+" WHERE barcode='"+brcde+"'");
+            stmt.executeUpdate("UPDATE products SET available_items=" + finalQuantity + " WHERE barcode='" + brcde + "'");
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Database error!");
             //ex.printStackTrace();
@@ -227,13 +227,13 @@ public class MySqlDBConnect {
             //ex.printStackTrace();
         }
     }
-    
-    public int getSalesmanID(String salesmanName){
+
+    public int getSalesmanID(String salesmanName) {
         int salesmanID = 0;
         try {
             stmt = con.createStatement();
 
-            ResultSet rs = stmt.executeQuery("SELECT id FROM salesman WHERE display_name = '"+salesmanName+"' LIMIT 1");
+            ResultSet rs = stmt.executeQuery("SELECT id FROM salesman WHERE display_name = '" + salesmanName + "' LIMIT 1");
             while (rs.next()) {
                 salesmanID = rs.getInt("id");
             }
@@ -245,16 +245,16 @@ public class MySqlDBConnect {
             JOptionPane.showMessageDialog(null, "Database error!");
             //ex.printStackTrace();
         }
-        
+
         return salesmanID;
     }
-    
-    public int getProductID(String brcde){
+
+    public int getProductID(String brcde) {
         int PID = 0;
         try {
             stmt = con.createStatement();
 
-            ResultSet rs = stmt.executeQuery("SELECT id FROM products WHERE barcode = '"+brcde+"' LIMIT 1");
+            ResultSet rs = stmt.executeQuery("SELECT id FROM products WHERE barcode = '" + brcde + "' LIMIT 1");
             while (rs.next()) {
                 PID = rs.getInt("id");
             }
@@ -266,15 +266,15 @@ public class MySqlDBConnect {
             JOptionPane.showMessageDialog(null, "Database error!");
             //ex.printStackTrace();
         }
-        
+
         return PID;
     }
-    
-    public void insertTransaction(int orderID, int productID, float price, int discount, int quantity, float total, int smid){
+
+    public void insertTransaction(int orderID, int productID, float price, int discount, int quantity, float total, int smid) {
         //insert transactions into the database.
         try {
             stmt = con.createStatement();
-            stmt.executeUpdate("INSERT INTO transactions(order_id,pid,price,discount,quantity,total,smid) VALUES('"+orderID+"','"+productID+"','"+price+"','"+discount+"','"+quantity+"','"+total+"','"+smid+"')");
+            stmt.executeUpdate("INSERT INTO transactions(order_id,pid,price,discount,quantity,total,smid) VALUES('" + orderID + "','" + productID + "','" + price + "','" + discount + "','" + quantity + "','" + total + "','" + smid + "')");
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Database error!");
             //ex.printStackTrace();
@@ -283,7 +283,82 @@ public class MySqlDBConnect {
             //ex.printStackTrace();
         }
     }
-    
+
+    public void displaySupplierTable() {
+        try {
+            stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM supplier");
+            DefaultTableModel supplierTableModel = (DefaultTableModel) MainClassUI.supplierDisplayTable.getModel();
+            supplierTableModel.setRowCount(0); //for refreshing purpose
+            while (rs.next()) {
+                supplierTableModel.addRow(new Object[]{rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5)});
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Database error!");
+        }
+    }
+
+    public void displayCustomerTable() {
+        try {
+            stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM customers");
+            DefaultTableModel supplierTableModel = (DefaultTableModel) MainClassUI.customerDisplayTable.getModel();
+            supplierTableModel.setRowCount(0); //for refreshing purpose
+            while (rs.next()) {
+                supplierTableModel.addRow(new Object[]{rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5)});
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Database error!");
+        }
+    }
+
+    public void displayProductTable() {
+        try {
+            stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM products");
+            DefaultTableModel supplierTableModel = (DefaultTableModel) MainClassUI.productDisplayTable.getModel();
+            supplierTableModel.setRowCount(0); //for refreshing purpose
+            while (rs.next()) {
+                supplierTableModel.addRow(new Object[]{rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6), rs.getString(7), rs.getString(8)});
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Database error!");
+        }
+    }
+
+    public void displayTransactionsTable() {
+        try {
+            Statement stmtForSalesman = con.createStatement();
+            Statement stmtForProduct = con.createStatement();
+            stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM transactions");
+
+            DefaultTableModel supplierTableModel = (DefaultTableModel) MainClassUI.transactionsDisplayTable.getModel();
+            supplierTableModel.setRowCount(0); //for refreshing purpose
+            while (rs.next()) {
+                // get product itemnum from product
+                ResultSet rs_getProductName = stmtForProduct.executeQuery("SELECT itemnum FROM products WHERE id = '" + rs.getString(3) + "' LIMIT 1");
+                while (rs_getProductName.next()) {
+                    // get salesman name from salesman id
+                    ResultSet rs_getSalesmanName = stmtForSalesman.executeQuery("SELECT display_name FROM salesman WHERE id = '" + rs.getString(8) + "' LIMIT 1");
+                    while (rs_getSalesmanName.next()) {
+                        supplierTableModel.addRow(new Object[]{rs.getString(1), rs.getString(2), rs_getProductName.getString(1), rs.getString(4), rs.getString(5), rs.getString(6), rs.getString(7), rs_getSalesmanName.getString(1), rs.getString(9)});
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Database error!");
+            ex.printStackTrace();
+        }
+    }
+
+    public void refreshAllTables() {
+        displaySupplierTable();
+        displayCustomerTable();
+        displayProductTable();
+        displayTransactionsTable();
+    }
+
     //close database connection
     public void closeConnection() {
         try {
