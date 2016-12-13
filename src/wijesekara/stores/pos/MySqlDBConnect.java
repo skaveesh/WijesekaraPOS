@@ -450,6 +450,32 @@ public class MySqlDBConnect {
         return isPasswordCorrect;
     }
 
+    public void changeUserPassword(String oldPassword, String newPassword) {
+        try {
+            stmt = con.createStatement();
+            Statement stmt2 = con.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT password FROM wpos_users WHERE username='" + LoginWindow.userName + "'");
+
+            while (rs.next()) {
+                if (rs.getString(1).equals(oldPassword)) {
+                    try {
+                        stmt2.executeUpdate("UPDATE wpos_users SET password='" + newPassword + "' WHERE username='" + LoginWindow.userName + "'");
+                        JOptionPane.showMessageDialog(null, "Password Change Successful!");
+                    } catch (SQLException ex) {
+                        JOptionPane.showMessageDialog(null, "Database error!");
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(null, "Database error!");
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(null, "Entered Old Password is Incorrect!");
+                }
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Database error!");
+            ex.printStackTrace();
+        }
+    }
+
     //close database connection
     public void closeConnection() {
         try {

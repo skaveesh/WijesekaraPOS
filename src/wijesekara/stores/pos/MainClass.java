@@ -34,7 +34,5 @@ public class MainClass {
         login.pack();
         login.setLocationRelativeTo(null);
         login.setVisible(true);
-
-        
     }
 }

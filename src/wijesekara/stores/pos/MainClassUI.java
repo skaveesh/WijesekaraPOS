@@ -201,7 +201,7 @@ public class MainClassUI extends javax.swing.JFrame {
         saveToPDF_btn = new javax.swing.JButton();
         saveAndPrint_btn = new javax.swing.JButton();
         refreshAll_btn = new javax.swing.JButton();
-        jButton6 = new javax.swing.JButton();
+        user_btn = new javax.swing.JButton();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -275,7 +275,7 @@ public class MainClassUI extends javax.swing.JFrame {
         addUpdateSalesmanMenu = new javax.swing.JMenuItem();
         addUpdateCustomerMenu = new javax.swing.JMenuItem();
         jMenu6 = new javax.swing.JMenu();
-        jMenuItem5 = new javax.swing.JMenuItem();
+        AboutMenu = new javax.swing.JMenuItem();
 
         jMenuItem1.setText("jMenuItem1");
 
@@ -330,7 +330,12 @@ public class MainClassUI extends javax.swing.JFrame {
             }
         });
 
-        jButton6.setText("jButton6");
+        user_btn.setText("User Mgt.");
+        user_btn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                user_btnActionPerformed(evt);
+            }
+        });
 
         jTabbedPane1.setPreferredSize(new java.awt.Dimension(1220, 477));
 
@@ -942,7 +947,7 @@ public class MainClassUI extends javax.swing.JFrame {
                                 .addGap(18, 18, 18)
                                 .addComponent(refreshAll_btn, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
-                                .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(user_btn, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1124, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(0, 8, Short.MAX_VALUE)))
                 .addContainerGap())
@@ -956,7 +961,7 @@ public class MainClassUI extends javax.swing.JFrame {
                     .addComponent(saveToPDF_btn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(saveOdr_btn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(newOdr_btn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(user_btn, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(1, 1, 1)
@@ -1025,8 +1030,13 @@ public class MainClassUI extends javax.swing.JFrame {
 
         jMenu6.setText("Help");
 
-        jMenuItem5.setText("About");
-        jMenu6.add(jMenuItem5);
+        AboutMenu.setText("About");
+        AboutMenu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                AboutMenuActionPerformed(evt);
+            }
+        });
+        jMenu6.add(AboutMenu);
 
         jMenuBar1.add(jMenu6);
 
@@ -1210,8 +1220,9 @@ public class MainClassUI extends javax.swing.JFrame {
         if (!((c >= '0') && (c <= '9')
                 || (c == KeyEvent.VK_BACK_SPACE)
                 || (c == KeyEvent.VK_DELETE))) {
-            getToolkit().beep();
-            evt.consume();
+            
+                getToolkit().beep();
+                evt.consume();
         }
     }//GEN-LAST:event_discount_txtKeyTyped
 
@@ -1474,6 +1485,17 @@ public class MainClassUI extends javax.swing.JFrame {
         srch_cus_txt.setText("");
     }//GEN-LAST:event_srch_cusreset_btnActionPerformed
 
+    private void user_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_user_btnActionPerformed
+        UserUI uui = new UserUI();
+        uui.pack();
+        uui.setLocationRelativeTo(null);
+        uui.setVisible(true);
+    }//GEN-LAST:event_user_btnActionPerformed
+
+    private void AboutMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AboutMenuActionPerformed
+        JOptionPane.showMessageDialog(null, "WijesekaraPOS\n2016\nSamintha Kaveesh\nChulan Kotudurage\nUmayanga Wijesinghe","About WijesekaraPOS", JOptionPane.INFORMATION_MESSAGE);
+    }//GEN-LAST:event_AboutMenuActionPerformed
+
     public void save_transaction() {
         try {
             MySqlDBConnect db = new MySqlDBConnect();
@@ -1556,6 +1578,7 @@ public class MainClassUI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem AboutMenu;
     private javax.swing.JMenuItem addUpdateCustomerMenu;
     private javax.swing.JMenuItem addUpdateProductMenu;
     private javax.swing.JMenuItem addUpdateSalesmanMenu;
@@ -1570,7 +1593,6 @@ public class MainClassUI extends javax.swing.JFrame {
     private static javax.swing.JTextField due_txt;
     private javax.swing.JButton editRowOrder_btn;
     private javax.swing.JMenuItem exitMenuItem;
-    private javax.swing.JButton jButton6;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -1592,7 +1614,6 @@ public class MainClassUI extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu6;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -1639,6 +1660,7 @@ public class MainClassUI extends javax.swing.JFrame {
     private javax.swing.JButton trans_srch_btn;
     private javax.swing.JTextField trans_srch_txt;
     public static javax.swing.JTable transactionsDisplayTable;
+    private javax.swing.JButton user_btn;
     // End of variables declaration//GEN-END:variables
 
 }

@@ -5,6 +5,7 @@
  */
 package wijesekara.stores.pos;
 
+import java.awt.event.KeyEvent;
 import java.util.List;
 import javax.swing.JOptionPane;
 
@@ -97,7 +98,22 @@ public class AddUpdateProductUI extends javax.swing.JFrame {
 
         jLabel9.setText("Available Items :");
 
+        upd_prdprice_txt.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                upd_prdprice_txtKeyTyped(evt);
+            }
+        });
+
+        upd_prddiscount_txt.setText("0");
+        upd_prddiscount_txt.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                upd_prddiscount_txtKeyTyped(evt);
+            }
+        });
+
         upd_supname_cmb.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        upd_prdavailable_spn.setModel(new javax.swing.SpinnerNumberModel(0, 0, null, 1));
 
         upd_prddelete_btn.setText("Delete Product");
         upd_prddelete_btn.addActionListener(new java.awt.event.ActionListener() {
@@ -129,6 +145,19 @@ public class AddUpdateProductUI extends javax.swing.JFrame {
 
         jLabel17.setText("Available Items :");
 
+        ins_prdprice_txt.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                ins_prdprice_txtKeyTyped(evt);
+            }
+        });
+
+        ins_prddiscount_txt.setText("0");
+        ins_prddiscount_txt.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                ins_prddiscount_txtKeyTyped(evt);
+            }
+        });
+
         ins_supname_cmb.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         ins_prdadd_btn.setText("Add Product");
@@ -139,6 +168,8 @@ public class AddUpdateProductUI extends javax.swing.JFrame {
                 ins_prdadd_btnActionPerformed(evt);
             }
         });
+
+        ins_prdavailable_spn.setModel(new javax.swing.SpinnerNumberModel(0, 0, null, 1));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -383,6 +414,86 @@ public class AddUpdateProductUI extends javax.swing.JFrame {
         }
         prd.closeConnection();
     }//GEN-LAST:event_upd_prddelete_btnActionPerformed
+
+    private void upd_prdprice_txtKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_upd_prdprice_txtKeyTyped
+        if (upd_prdprice_txt.getText().contains(".")) {
+            char c = evt.getKeyChar();
+            if (!((c >= '0') && (c <= '9')
+                    || (c == KeyEvent.VK_BACK_SPACE)
+                    || (c == KeyEvent.VK_DELETE))) {
+                getToolkit().beep();
+                evt.consume();
+            }
+        } else if (upd_prdprice_txt.getText().trim().equals("")) {
+            char c = evt.getKeyChar();
+            if (!((c >= '0') && (c <= '9')
+                    || (c == KeyEvent.VK_BACK_SPACE)
+                    || (c == KeyEvent.VK_DELETE))) {
+                getToolkit().beep();
+                evt.consume();
+            }
+        } else {
+            char c = evt.getKeyChar();
+            if (!((c >= '0') && (c <= '9')
+                    || (c == KeyEvent.VK_BACK_SPACE)
+                    || (c == KeyEvent.VK_DELETE)
+                    || (c == '.'))) {
+                getToolkit().beep();
+                evt.consume();
+            }
+        }
+    }//GEN-LAST:event_upd_prdprice_txtKeyTyped
+
+    private void ins_prdprice_txtKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_ins_prdprice_txtKeyTyped
+        if (ins_prdprice_txt.getText().contains(".")) {
+            char c = evt.getKeyChar();
+            if (!((c >= '0') && (c <= '9')
+                    || (c == KeyEvent.VK_BACK_SPACE)
+                    || (c == KeyEvent.VK_DELETE))) {
+                getToolkit().beep();
+                evt.consume();
+            }
+        } else if (ins_prdprice_txt.getText().trim().equals("")) {
+            char c = evt.getKeyChar();
+            if (!((c >= '0') && (c <= '9')
+                    || (c == KeyEvent.VK_BACK_SPACE)
+                    || (c == KeyEvent.VK_DELETE))) {
+                getToolkit().beep();
+                evt.consume();
+            }
+        } else {
+            char c = evt.getKeyChar();
+            if (!((c >= '0') && (c <= '9')
+                    || (c == KeyEvent.VK_BACK_SPACE)
+                    || (c == KeyEvent.VK_DELETE)
+                    || (c == '.'))) {
+                getToolkit().beep();
+                evt.consume();
+            }
+        }
+    }//GEN-LAST:event_ins_prdprice_txtKeyTyped
+
+    private void upd_prddiscount_txtKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_upd_prddiscount_txtKeyTyped
+        char c = evt.getKeyChar();
+        if (!((c >= '0') && (c <= '9')
+                || (c == KeyEvent.VK_BACK_SPACE)
+                || (c == KeyEvent.VK_DELETE))) {
+            
+                getToolkit().beep();
+                evt.consume();
+        }
+    }//GEN-LAST:event_upd_prddiscount_txtKeyTyped
+
+    private void ins_prddiscount_txtKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_ins_prddiscount_txtKeyTyped
+        char c = evt.getKeyChar();
+        if (!((c >= '0') && (c <= '9')
+                || (c == KeyEvent.VK_BACK_SPACE)
+                || (c == KeyEvent.VK_DELETE))) {
+            
+                getToolkit().beep();
+                evt.consume();
+        }
+    }//GEN-LAST:event_ins_prddiscount_txtKeyTyped
 
     /**
      * @param args the command line arguments

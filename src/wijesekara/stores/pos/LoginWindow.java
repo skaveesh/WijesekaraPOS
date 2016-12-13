@@ -28,6 +28,8 @@ public class LoginWindow extends javax.swing.JFrame {
     FileSystemView fw = fr.getFileSystemView();
     Base64Converter base64 = new Base64Converter();
     ConfigureDBWindow config_window;
+    
+    public static String userName;
 
     public LoginWindow() {
         initComponents();
@@ -231,6 +233,9 @@ public class LoginWindow extends javax.swing.JFrame {
     private void login_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_login_btnActionPerformed
         MySqlDBConnect newdb = new MySqlDBConnect();
         newdb.connectDB();
+        
+        //set static user name for the this session
+        userName = usernamelog_txt.getText().trim();
 
         if (usernamelog_txt.getText().trim().equals("") | usernamepasslog_txt.getText().equals("")) {
             JOptionPane.showMessageDialog(null, "Please Fill the Required Fields!");

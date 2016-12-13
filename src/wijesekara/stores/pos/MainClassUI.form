@@ -85,10 +85,13 @@
             <Property name="text" type="java.lang.String" value="Help"/>
           </Properties>
           <SubComponents>
-            <MenuItem class="javax.swing.JMenuItem" name="jMenuItem5">
+            <MenuItem class="javax.swing.JMenuItem" name="AboutMenu">
               <Properties>
                 <Property name="text" type="java.lang.String" value="About"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="AboutMenuActionPerformed"/>
+              </Events>
             </MenuItem>
           </SubComponents>
         </Menu>
@@ -176,7 +179,7 @@
                                   <EmptySpace type="separate" max="-2" attributes="0"/>
                                   <Component id="refreshAll_btn" min="-2" pref="90" max="-2" attributes="0"/>
                                   <EmptySpace type="separate" max="-2" attributes="0"/>
-                                  <Component id="jButton6" min="-2" pref="90" max="-2" attributes="0"/>
+                                  <Component id="user_btn" min="-2" pref="90" max="-2" attributes="0"/>
                               </Group>
                               <Component id="jTabbedPane1" alignment="0" min="-2" pref="1124" max="-2" attributes="0"/>
                           </Group>
@@ -196,7 +199,7 @@
                       <Component id="saveToPDF_btn" alignment="0" max="32767" attributes="0"/>
                       <Component id="saveOdr_btn" alignment="0" max="32767" attributes="0"/>
                       <Component id="newOdr_btn" alignment="0" max="32767" attributes="0"/>
-                      <Component id="jButton6" min="-2" pref="65" max="-2" attributes="0"/>
+                      <Component id="user_btn" min="-2" pref="65" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Component id="jSeparator1" min="-2" pref="10" max="-2" attributes="0"/>
@@ -256,10 +259,13 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="refreshAll_btnActionPerformed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JButton" name="jButton6">
+        <Component class="javax.swing.JButton" name="user_btn">
           <Properties>
-            <Property name="text" type="java.lang.String" value="jButton6"/>
+            <Property name="text" type="java.lang.String" value="User Mgt."/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="user_btnActionPerformed"/>
+          </Events>
         </Component>
         <Container class="javax.swing.JTabbedPane" name="jTabbedPane1">
           <Properties>
