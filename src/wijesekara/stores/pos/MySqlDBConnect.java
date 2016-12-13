@@ -298,6 +298,20 @@ public class MySqlDBConnect {
         }
     }
 
+    public void searchSupplierTable(String name) {
+        try {
+            stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM supplier WHERE name collate latin1_swedish_ci LIKE '%" + name + "%'");
+            DefaultTableModel supplierTableModel = (DefaultTableModel) MainClassUI.supplierDisplayTable.getModel();
+            supplierTableModel.setRowCount(0); //for refreshing purpose
+            while (rs.next()) {
+                supplierTableModel.addRow(new Object[]{rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5)});
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Database error!");
+        }
+    }
+
     public void displayCustomerTable() {
         try {
             stmt = con.createStatement();
@@ -312,10 +326,38 @@ public class MySqlDBConnect {
         }
     }
 
+    public void searchCustomerTable(String name) {
+        try {
+            stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM customers WHERE name LIKE '%" + name + "%'");
+            DefaultTableModel supplierTableModel = (DefaultTableModel) MainClassUI.customerDisplayTable.getModel();
+            supplierTableModel.setRowCount(0); //for refreshing purpose
+            while (rs.next()) {
+                supplierTableModel.addRow(new Object[]{rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5)});
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Database error!");
+        }
+    }
+
     public void displayProductTable() {
         try {
             stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM products");
+            DefaultTableModel supplierTableModel = (DefaultTableModel) MainClassUI.productDisplayTable.getModel();
+            supplierTableModel.setRowCount(0); //for refreshing purpose
+            while (rs.next()) {
+                supplierTableModel.addRow(new Object[]{rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6), rs.getString(7), rs.getString(8)});
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Database error!");
+        }
+    }
+
+    public void searchProductTable(String keyword, String barcodeORItemNum) {
+        try {
+            stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM products WHERE " + barcodeORItemNum + "='" + keyword + "'");
             DefaultTableModel supplierTableModel = (DefaultTableModel) MainClassUI.productDisplayTable.getModel();
             supplierTableModel.setRowCount(0); //for refreshing purpose
             while (rs.next()) {
@@ -352,11 +394,60 @@ public class MySqlDBConnect {
         }
     }
 
+    public void searchTransactionsTable(String orderID) {
+        try {
+            Statement stmtForSalesman = con.createStatement();
+            Statement stmtForProduct = con.createStatement();
+            stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM transactions WHERE order_id='" + orderID + "'");
+
+            DefaultTableModel supplierTableModel = (DefaultTableModel) MainClassUI.transactionsDisplayTable.getModel();
+            supplierTableModel.setRowCount(0); //for refreshing purpose
+            while (rs.next()) {
+                // get product itemnum from product
+                ResultSet rs_getProductName = stmtForProduct.executeQuery("SELECT itemnum FROM products WHERE id = '" + rs.getString(3) + "' LIMIT 1");
+                while (rs_getProductName.next()) {
+                    // get salesman name from salesman id
+                    ResultSet rs_getSalesmanName = stmtForSalesman.executeQuery("SELECT display_name FROM salesman WHERE id = '" + rs.getString(8) + "' LIMIT 1");
+                    while (rs_getSalesmanName.next()) {
+                        supplierTableModel.addRow(new Object[]{rs.getString(1), rs.getString(2), rs_getProductName.getString(1), rs.getString(4), rs.getString(5), rs.getString(6), rs.getString(7), rs_getSalesmanName.getString(1), rs.getString(9)});
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Database error!");
+            ex.printStackTrace();
+        }
+    }
+
+    public void refreshOrderID() {
+        MainClassUI.orderid_txt.setText(Integer.toString(getNextOrderId()));
+    }
+
     public void refreshAllTables() {
         displaySupplierTable();
         displayCustomerTable();
         displayProductTable();
         displayTransactionsTable();
+        refreshOrderID();
+    }
+
+    public boolean adminAuthenticationToContinue(String password) {
+        boolean isPasswordCorrect = false;
+        try {
+            stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT password FROM wpos_users WHERE username='admin'");
+
+            while (rs.next()) {
+                if (rs.getString(1).equals(password)) {
+                    isPasswordCorrect = true;
+                }
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Database error!");
+            ex.printStackTrace();
+        }
+        return isPasswordCorrect;
     }
 
     //close database connection

@@ -46,6 +46,7 @@ public class AddUpdateSalesmanUI extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Add or Update Salesman");
+        setResizable(false);
 
         jLabel1.setText("Update/Delete Salesman");
 

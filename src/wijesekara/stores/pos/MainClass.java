@@ -5,9 +5,13 @@
  */
 package wijesekara.stores.pos;
 
+import java.io.File;
+import java.io.PrintWriter;
 import java.util.Timer;
+import javax.swing.JFileChooser;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.filechooser.FileSystemView;
 
 /**
  *
@@ -30,10 +34,7 @@ public class MainClass {
         login.pack();
         login.setLocationRelativeTo(null);
         login.setVisible(true);
+
         
-        //this method will execute BarcodeReader.class clss file
-        //every 1000 millisecond
-        Timer timer = new Timer();
-        timer.schedule(new BarcodeReader(), 0, 1000);
     }
 }

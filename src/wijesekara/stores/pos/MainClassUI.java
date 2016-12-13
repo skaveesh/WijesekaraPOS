@@ -14,19 +14,27 @@ import java.awt.event.KeyListener;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Vector;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
+import javax.swing.RowFilter;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 /**
  *
@@ -35,6 +43,7 @@ import javax.swing.table.DefaultTableModel;
 public class MainClassUI extends javax.swing.JFrame {
 
     int productTableID = 0;
+    public static String whereToRedirect = "";
 
     private class MainClassUIKeyManager implements KeyEventDispatcher {
 
@@ -51,6 +60,7 @@ public class MainClassUI extends javax.swing.JFrame {
                     if (reply == JOptionPane.YES_OPTION) {
                         clearWholeWindow();
                     }
+                    loadSalesmanToComboAndAllTables();
                 }
 
                 //F2
@@ -60,13 +70,97 @@ public class MainClassUI extends javax.swing.JFrame {
                             "Press Yes to Proceed with Save?", "Save", JOptionPane.YES_NO_OPTION);
                     if (reply == JOptionPane.YES_OPTION) {
                         if (productTable.getRowCount() > 0) {
-                            save_transaction();
+                            if (paid_txt.getText().trim().equals("") || Float.parseFloat(paid_txt.getText().trim()) <= Float.parseFloat(total_lbl.getText().trim())) {
+                                JOptionPane.showMessageDialog(null, "Please enter appropriate paid amount");
+                            } else {
+                                save_transaction();
+                                loadSalesmanToComboAndAllTables();
+                                clearWholeWindow();
+                            }
                         } else {
                             JOptionPane.showMessageDialog(null, "Please insert items to the order list to proceed.");
                         }
                     }
                 }
-                
+
+                //F3
+                if (e.getKeyCode() == KeyEvent.VK_F3) {
+                    // save current transaction to database and save order as pdf
+                    int reply = JOptionPane.showConfirmDialog(null,
+                            "Press Yes to Proceed with Save to a PDF?", "Save", JOptionPane.YES_NO_OPTION);
+                    if (reply == JOptionPane.YES_OPTION) {
+                        if (productTable.getRowCount() > 0) {
+                            if (paid_txt.getText().trim().equals("") || Float.parseFloat(paid_txt.getText().trim()) <= Float.parseFloat(total_lbl.getText().trim())) {
+                                JOptionPane.showMessageDialog(null, "Please enter appropriate paid amount");
+                            } else {
+
+                                // generating bill for the order
+                                HashMap parametersToReport = new HashMap();
+                                parametersToReport.put("order_id", orderid_txt.getText());
+                                parametersToReport.put("order_date", date_txt.getText());
+                                parametersToReport.put("order_time", time_txt.getText());
+                                parametersToReport.put("sal_name_jas", salesman_combo.getSelectedItem().toString());
+                                parametersToReport.put("order_total", total_lbl.getText());
+                                parametersToReport.put("order_paid", paid_txt.getText());
+                                parametersToReport.put("order_balance", due_txt.getText());
+
+                                JFileChooser chooser = new JFileChooser();
+                                chooser.setFileFilter(new FileNameExtensionFilter("PDF File", "pdf"));
+
+                                int result = chooser.showSaveDialog(null);
+                                if (result == JFileChooser.APPROVE_OPTION) {
+                                    String path = chooser.getSelectedFile().getAbsolutePath();
+                                    String final_name = path + ".pdf";
+                                    ReportView r = new ReportView("jasperreport\\report1.jasper", parametersToReport, final_name);
+
+                                    save_transaction();
+                                    loadSalesmanToComboAndAllTables();
+                                    clearWholeWindow();
+                                }
+                            }
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Please insert items to the order list to proceed.");
+                        }
+                    }
+
+                }
+
+                //F5
+                if (e.getKeyCode() == KeyEvent.VK_F5) {
+                    // save current transaction to database and save order as pdf
+                    int reply = JOptionPane.showConfirmDialog(null,
+                            "Press Yes to Proceed with Save Order and Print?", "Save and Print", JOptionPane.YES_NO_OPTION);
+                    if (reply == JOptionPane.YES_OPTION) {
+                        if (productTable.getRowCount() > 0) {
+                            if (paid_txt.getText().trim().equals("") || Float.parseFloat(paid_txt.getText().trim()) <= Float.parseFloat(total_lbl.getText().trim())) {
+                                JOptionPane.showMessageDialog(null, "Please enter appropriate paid amount");
+                            } else {
+
+                                // generating bill for the order
+                                HashMap parametersToReport = new HashMap();
+                                parametersToReport.put("order_id", orderid_txt.getText());
+                                parametersToReport.put("order_date", date_txt.getText());
+                                parametersToReport.put("order_time", time_txt.getText());
+                                parametersToReport.put("sal_name_jas", salesman_combo.getSelectedItem().toString());
+                                parametersToReport.put("order_total", total_lbl.getText());
+                                parametersToReport.put("order_paid", paid_txt.getText());
+                                parametersToReport.put("order_balance", due_txt.getText());
+
+                                ReportView r = new ReportView("jasperreport\\report1.jasper", parametersToReport);
+                                r.setVisible(true);
+
+                                save_transaction();
+                                loadSalesmanToComboAndAllTables();
+                                clearWholeWindow();
+
+                            }
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Please insert items to the order list to proceed.");
+                        }
+                    }
+
+                }
+
                 //F9
                 if (e.getKeyCode() == KeyEvent.VK_F9) {
                     //refresh all
@@ -84,7 +178,7 @@ public class MainClassUI extends javax.swing.JFrame {
         initComponents();
         autoStart();
         loadSalesmanToComboAndAllTables();
-        
+
         //key events invokes
         KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
         manager.addKeyEventDispatcher(new MainClassUIKeyManager());
@@ -100,11 +194,12 @@ public class MainClassUI extends javax.swing.JFrame {
     private void initComponents() {
 
         jMenuItem1 = new javax.swing.JMenuItem();
+        buttonGroup1 = new javax.swing.ButtonGroup();
         jPanel1 = new javax.swing.JPanel();
         newOdr_btn = new javax.swing.JButton();
         saveOdr_btn = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
+        saveToPDF_btn = new javax.swing.JButton();
+        saveAndPrint_btn = new javax.swing.JButton();
         refreshAll_btn = new javax.swing.JButton();
         jButton6 = new javax.swing.JButton();
         jTabbedPane1 = new javax.swing.JTabbedPane();
@@ -116,33 +211,32 @@ public class MainClassUI extends javax.swing.JFrame {
         jPanel4 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         transactionsDisplayTable = new javax.swing.JTable();
-        jTextField1 = new javax.swing.JTextField();
+        trans_srch_txt = new javax.swing.JTextField();
         jLabel10 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        trans_srch_btn = new javax.swing.JButton();
+        trans_reset_btn = new javax.swing.JButton();
         jPanel9 = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
         productDisplayTable = new javax.swing.JTable();
         jLabel14 = new javax.swing.JLabel();
-        jTextField3 = new javax.swing.JTextField();
-        jLabel15 = new javax.swing.JLabel();
-        jTextField4 = new javax.swing.JTextField();
-        jButton9 = new javax.swing.JButton();
-        jButton10 = new javax.swing.JButton();
+        prdct_srch_txt = new javax.swing.JTextField();
+        prdct_srch_btn = new javax.swing.JButton();
+        prdct_reset_btn = new javax.swing.JButton();
+        prdct_srch_cmb = new javax.swing.JComboBox<>();
         jPanel5 = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
         supplierDisplayTable = new javax.swing.JTable();
         jLabel16 = new javax.swing.JLabel();
-        jTextField5 = new javax.swing.JTextField();
-        jButton11 = new javax.swing.JButton();
-        jButton12 = new javax.swing.JButton();
+        sup_srch_txt = new javax.swing.JTextField();
+        sup_srch_btn = new javax.swing.JButton();
+        sup_reset_btn = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane5 = new javax.swing.JScrollPane();
         customerDisplayTable = new javax.swing.JTable();
         jLabel13 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
-        jButton7 = new javax.swing.JButton();
-        jButton8 = new javax.swing.JButton();
+        srch_cus_txt = new javax.swing.JTextField();
+        srch_cus_btn = new javax.swing.JButton();
+        srch_cusreset_btn = new javax.swing.JButton();
         jPanel6 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -150,6 +244,8 @@ public class MainClassUI extends javax.swing.JFrame {
         date_txt = new javax.swing.JTextField();
         time_txt = new javax.swing.JTextField();
         salesman_combo = new javax.swing.JComboBox<>();
+        jLabel17 = new javax.swing.JLabel();
+        orderid_txt = new javax.swing.JTextField();
         jPanel7 = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
@@ -210,16 +306,21 @@ public class MainClassUI extends javax.swing.JFrame {
             }
         });
 
-        jButton3.setText("Doc (F3)");
-        jButton3.setToolTipText("Save as Document");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
+        saveToPDF_btn.setText("Doc (F3)");
+        saveToPDF_btn.setToolTipText("Save as Document");
+        saveToPDF_btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
+                saveToPDF_btnActionPerformed(evt);
             }
         });
 
-        jButton4.setText("Print (F5)");
-        jButton4.setToolTipText("Save and Print ");
+        saveAndPrint_btn.setText("Print (F5)");
+        saveAndPrint_btn.setToolTipText("Save and Print ");
+        saveAndPrint_btn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveAndPrint_btnActionPerformed(evt);
+            }
+        });
 
         refreshAll_btn.setText("Refr. (F9)");
         refreshAll_btn.setToolTipText("Refresh All the Tables");
@@ -317,9 +418,19 @@ public class MainClassUI extends javax.swing.JFrame {
 
         jLabel10.setText("<html>Search<br />Order :</html>");
 
-        jButton1.setText("Search");
+        trans_srch_btn.setText("Search");
+        trans_srch_btn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                trans_srch_btnActionPerformed(evt);
+            }
+        });
 
-        jButton2.setText("Reset");
+        trans_reset_btn.setText("Reset");
+        trans_reset_btn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                trans_reset_btnActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -334,9 +445,9 @@ public class MainClassUI extends javax.swing.JFrame {
                         .addGap(6, 6, 6)
                         .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, 44, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(trans_srch_txt, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(trans_srch_btn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(trans_reset_btn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel4Layout.setVerticalGroup(
@@ -344,12 +455,12 @@ public class MainClassUI extends javax.swing.JFrame {
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addGap(45, 45, 45)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jTextField1)
+                    .addComponent(trans_srch_txt)
                     .addComponent(jLabel10))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton1)
+                .addComponent(trans_srch_btn)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton2)
+                .addComponent(trans_reset_btn)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -377,13 +488,23 @@ public class MainClassUI extends javax.swing.JFrame {
         });
         jScrollPane4.setViewportView(productDisplayTable);
 
-        jLabel14.setText("<html>Search Item<br />By Barcode<html>");
+        jLabel14.setText("Search Item By");
 
-        jLabel15.setText("By Item Number");
+        prdct_srch_btn.setText("Search");
+        prdct_srch_btn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                prdct_srch_btnActionPerformed(evt);
+            }
+        });
 
-        jButton9.setText("Search");
+        prdct_reset_btn.setText("Reset");
+        prdct_reset_btn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                prdct_reset_btnActionPerformed(evt);
+            }
+        });
 
-        jButton10.setText("Reset");
+        prdct_srch_cmb.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Barcode", "Item Number" }));
 
         javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
         jPanel9.setLayout(jPanel9Layout);
@@ -394,15 +515,13 @@ public class MainClassUI extends javax.swing.JFrame {
                 .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 983, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jTextField3)
-                    .addComponent(jTextField4)
-                    .addComponent(jButton9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(prdct_srch_txt)
+                    .addComponent(prdct_srch_btn, javax.swing.GroupLayout.DEFAULT_SIZE, 115, Short.MAX_VALUE)
+                    .addComponent(prdct_reset_btn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel9Layout.createSequentialGroup()
-                        .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel15))
-                        .addGap(0, 25, Short.MAX_VALUE))
-                    .addComponent(jButton10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(jLabel14)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(prdct_srch_cmb, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel9Layout.setVerticalGroup(
@@ -413,18 +532,16 @@ public class MainClassUI extends javax.swing.JFrame {
                 .addContainerGap())
             .addGroup(jPanel9Layout.createSequentialGroup()
                 .addGap(45, 45, 45)
-                .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jLabel14)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(prdct_srch_cmb, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(prdct_srch_txt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jLabel15)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton9)
+                .addComponent(prdct_srch_btn)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton10)
-                .addContainerGap(54, Short.MAX_VALUE))
+                .addComponent(prdct_reset_btn)
+                .addContainerGap(96, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Products", jPanel9);
@@ -449,9 +566,19 @@ public class MainClassUI extends javax.swing.JFrame {
 
         jLabel16.setText("<html>Search Supplier<br />by Name</html>");
 
-        jButton11.setText("Search");
+        sup_srch_btn.setText("Search");
+        sup_srch_btn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                sup_srch_btnActionPerformed(evt);
+            }
+        });
 
-        jButton12.setText("Reset");
+        sup_reset_btn.setText("Reset");
+        sup_reset_btn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                sup_reset_btnActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
@@ -462,12 +589,12 @@ public class MainClassUI extends javax.swing.JFrame {
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 983, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jTextField5)
-                    .addComponent(jButton11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(sup_srch_txt)
+                    .addComponent(sup_srch_btn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel5Layout.createSequentialGroup()
                         .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 24, Short.MAX_VALUE))
-                    .addComponent(jButton12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(sup_reset_btn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel5Layout.setVerticalGroup(
@@ -480,11 +607,11 @@ public class MainClassUI extends javax.swing.JFrame {
                 .addGap(45, 45, 45)
                 .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(sup_srch_txt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton11)
+                .addComponent(sup_srch_btn)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton12)
+                .addComponent(sup_reset_btn)
                 .addContainerGap(124, Short.MAX_VALUE))
         );
 
@@ -502,9 +629,19 @@ public class MainClassUI extends javax.swing.JFrame {
 
         jLabel13.setText("<html>Search Customer<br />by Name:</html>");
 
-        jButton7.setText("Search");
+        srch_cus_btn.setText("Search");
+        srch_cus_btn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                srch_cus_btnActionPerformed(evt);
+            }
+        });
 
-        jButton8.setText("Reset");
+        srch_cusreset_btn.setText("Reset");
+        srch_cusreset_btn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                srch_cusreset_btnActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -515,12 +652,12 @@ public class MainClassUI extends javax.swing.JFrame {
                 .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 983, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jTextField2)
-                    .addComponent(jButton7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(srch_cus_txt)
+                    .addComponent(srch_cus_btn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 15, Short.MAX_VALUE))
-                    .addComponent(jButton8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(srch_cusreset_btn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
@@ -533,11 +670,11 @@ public class MainClassUI extends javax.swing.JFrame {
                 .addGap(45, 45, 45)
                 .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(srch_cus_txt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton7)
+                .addComponent(srch_cus_btn)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton8)
+                .addComponent(srch_cusreset_btn)
                 .addContainerGap(124, Short.MAX_VALUE))
         );
 
@@ -559,6 +696,11 @@ public class MainClassUI extends javax.swing.JFrame {
 
         salesman_combo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
+        jLabel17.setText("Order ID :");
+
+        orderid_txt.setDisabledTextColor(new java.awt.Color(0, 0, 0));
+        orderid_txt.setEnabled(false);
+
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
@@ -568,12 +710,14 @@ public class MainClassUI extends javax.swing.JFrame {
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel1)
                     .addComponent(jLabel2)
-                    .addComponent(jLabel3))
+                    .addComponent(jLabel3)
+                    .addComponent(jLabel17))
                 .addGap(30, 30, 30)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(date_txt)
                     .addComponent(time_txt)
-                    .addComponent(salesman_combo, 0, 110, Short.MAX_VALUE))
+                    .addComponent(salesman_combo, 0, 110, Short.MAX_VALUE)
+                    .addComponent(orderid_txt))
                 .addContainerGap(116, Short.MAX_VALUE))
         );
         jPanel6Layout.setVerticalGroup(
@@ -591,6 +735,10 @@ public class MainClassUI extends javax.swing.JFrame {
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
                     .addComponent(salesman_combo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel17)
+                    .addComponent(orderid_txt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -788,9 +936,9 @@ public class MainClassUI extends javax.swing.JFrame {
                                 .addGap(18, 18, 18)
                                 .addComponent(saveOdr_btn, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
-                                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(saveToPDF_btn, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
-                                .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(saveAndPrint_btn, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
                                 .addComponent(refreshAll_btn, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
@@ -804,8 +952,8 @@ public class MainClassUI extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addComponent(refreshAll_btn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(saveAndPrint_btn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(saveToPDF_btn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(saveOdr_btn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(newOdr_btn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -910,9 +1058,10 @@ public class MainClassUI extends javax.swing.JFrame {
 
         //set text on date_txt and time_txt
         t.start();
+
     }
-    
-    public static void loadSalesmanToComboAndAllTables(){
+
+    public static void loadSalesmanToComboAndAllTables() {
         //load salesmans
         MySqlDBConnect db = new MySqlDBConnect();
         db.connectDB();
@@ -921,7 +1070,7 @@ public class MainClassUI extends javax.swing.JFrame {
         salesman_combo.setModel(new DefaultComboBoxModel(ls.toArray()));
 
         db.refreshAllTables();
-        
+
         db.closeConnection();
     }
 
@@ -963,6 +1112,7 @@ public class MainClassUI extends javax.swing.JFrame {
     }//GEN-LAST:event_exitMenuItemActionPerformed
 
     private void barcodeadd_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_barcodeadd_btnActionPerformed
+
         // Enter bacode and press Add button    
         MySqlDBConnect db = new MySqlDBConnect();
         db.connectDB();
@@ -1123,7 +1273,13 @@ public class MainClassUI extends javax.swing.JFrame {
                 "Press Yes to Proceed with Save?", "Save", JOptionPane.YES_NO_OPTION);
         if (reply == JOptionPane.YES_OPTION) {
             if (productTable.getRowCount() > 0) {
-                save_transaction();
+                if (paid_txt.getText().trim().equals("") || Float.parseFloat(paid_txt.getText().trim()) <= Float.parseFloat(total_lbl.getText().trim())) {
+                    JOptionPane.showMessageDialog(null, "Please enter appropriate paid amount");
+                } else {
+                    save_transaction();
+                    loadSalesmanToComboAndAllTables();
+                    clearWholeWindow();
+                }
             } else {
                 JOptionPane.showMessageDialog(null, "Please insert items to the order list to proceed.");
             }
@@ -1131,6 +1287,7 @@ public class MainClassUI extends javax.swing.JFrame {
     }//GEN-LAST:event_saveOdr_btnActionPerformed
 
     private void barcodecancel_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_barcodecancel_btnActionPerformed
+
         barcode_txt.setText("");
         quantity_txt.setText("");
         discount_txt.setText("");
@@ -1142,6 +1299,7 @@ public class MainClassUI extends javax.swing.JFrame {
         if (reply == JOptionPane.YES_OPTION) {
             clearWholeWindow();
         }
+        loadSalesmanToComboAndAllTables();
     }//GEN-LAST:event_newOdr_btnActionPerformed
 
     private void addUpdateCustomerMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addUpdateCustomerMenuActionPerformed
@@ -1152,45 +1310,169 @@ public class MainClassUI extends javax.swing.JFrame {
     }//GEN-LAST:event_addUpdateCustomerMenuActionPerformed
 
     private void addUpdateProductMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addUpdateProductMenuActionPerformed
-        AddUpdateProductUI aup = new AddUpdateProductUI();
-        aup.pack();
-        aup.setLocationRelativeTo(null);
+        AdminAuthenticateUI admin = new AdminAuthenticateUI();
+        admin.pack();
+        admin.setLocationRelativeTo(null);
+        admin.setVisible(true);
 
-        //load salesmans
-        Supplier db = new Supplier();
-        db.connectDB();
-
-        List<String> ls = db.LoadSuppliers();
-        aup.ins_supname_cmb.setModel(new DefaultComboBoxModel(ls.toArray()));
-        aup.upd_supname_cmb.setModel(new DefaultComboBoxModel(ls.toArray()));
-
-        db.closeConnection();
-
-        aup.setVisible(true);
+        //this will redirect to product add update UI from admin password window
+        whereToRedirect = "ProductUI";
     }//GEN-LAST:event_addUpdateProductMenuActionPerformed
 
     private void addUpdateSupplierMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addUpdateSupplierMenuActionPerformed
-        AddUpdateSupplierUI aus = new AddUpdateSupplierUI();
-        aus.pack();
-        aus.setLocationRelativeTo(null);
-        aus.setVisible(true);
+        AdminAuthenticateUI admin = new AdminAuthenticateUI();
+        admin.pack();
+        admin.setLocationRelativeTo(null);
+        admin.setVisible(true);
+
+        //this will redirect to product add update UI from admin password window
+        whereToRedirect = "SupplierUI";
+
     }//GEN-LAST:event_addUpdateSupplierMenuActionPerformed
 
     private void addUpdateSalesmanMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addUpdateSalesmanMenuActionPerformed
-        AddUpdateSalesmanUI aus = new AddUpdateSalesmanUI();
-        aus.pack();
-        aus.setLocationRelativeTo(null);
-        aus.setVisible(true);
+        AdminAuthenticateUI admin = new AdminAuthenticateUI();
+        admin.pack();
+        admin.setLocationRelativeTo(null);
+        admin.setVisible(true);
+
+        whereToRedirect = "SalesmanUI";
+
     }//GEN-LAST:event_addUpdateSalesmanMenuActionPerformed
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton3ActionPerformed
+    private void saveToPDF_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveToPDF_btnActionPerformed
+        // save current transaction to database and save order as pdf
+        int reply = JOptionPane.showConfirmDialog(null,
+                "Press Yes to Proceed with Save to a PDF?", "Save", JOptionPane.YES_NO_OPTION);
+        if (reply == JOptionPane.YES_OPTION) {
+            if (productTable.getRowCount() > 0) {
+                if (paid_txt.getText().trim().equals("") || Float.parseFloat(paid_txt.getText().trim()) <= Float.parseFloat(total_lbl.getText().trim())) {
+                    JOptionPane.showMessageDialog(null, "Please enter appropriate paid amount");
+                } else {
+
+                    // generating bill for the order
+                    HashMap parametersToReport = new HashMap();
+                    parametersToReport.put("order_id", orderid_txt.getText());
+                    parametersToReport.put("order_date", date_txt.getText());
+                    parametersToReport.put("order_time", time_txt.getText());
+                    parametersToReport.put("sal_name_jas", salesman_combo.getSelectedItem().toString());
+                    parametersToReport.put("order_total", total_lbl.getText());
+                    parametersToReport.put("order_paid", paid_txt.getText());
+                    parametersToReport.put("order_balance", due_txt.getText());
+
+                    JFileChooser chooser = new JFileChooser();
+                    chooser.setFileFilter(new FileNameExtensionFilter("PDF File", "pdf"));
+
+                    int result = chooser.showSaveDialog(this);
+                    if (result == JFileChooser.APPROVE_OPTION) {
+                        String path = chooser.getSelectedFile().getAbsolutePath();
+                        String final_name = path + ".pdf";
+                        ReportView r = new ReportView("jasperreport\\report1.jasper", parametersToReport, final_name);
+
+                        save_transaction();
+                        loadSalesmanToComboAndAllTables();
+                        clearWholeWindow();
+                    }
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "Please insert items to the order list to proceed.");
+            }
+        }
+
+    }//GEN-LAST:event_saveToPDF_btnActionPerformed
 
     private void refreshAll_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshAll_btnActionPerformed
         //refresh all
         loadSalesmanToComboAndAllTables();
     }//GEN-LAST:event_refreshAll_btnActionPerformed
+
+    private void saveAndPrint_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAndPrint_btnActionPerformed
+        // save current transaction to database and save order as pdf
+        int reply = JOptionPane.showConfirmDialog(null,
+                "Press Yes to Proceed with Save Order and Print?", "Save and Print", JOptionPane.YES_NO_OPTION);
+        if (reply == JOptionPane.YES_OPTION) {
+            if (productTable.getRowCount() > 0) {
+                if (paid_txt.getText().trim().equals("") || Float.parseFloat(paid_txt.getText().trim()) <= Float.parseFloat(total_lbl.getText().trim())) {
+                    JOptionPane.showMessageDialog(null, "Please enter appropriate paid amount");
+                } else {
+
+                    // generating bill for the order
+                    HashMap parametersToReport = new HashMap();
+                    parametersToReport.put("order_id", orderid_txt.getText());
+                    parametersToReport.put("order_date", date_txt.getText());
+                    parametersToReport.put("order_time", time_txt.getText());
+                    parametersToReport.put("sal_name_jas", salesman_combo.getSelectedItem().toString());
+                    parametersToReport.put("order_total", total_lbl.getText());
+                    parametersToReport.put("order_paid", paid_txt.getText());
+                    parametersToReport.put("order_balance", due_txt.getText());
+
+                    ReportView r = new ReportView("jasperreport\\report1.jasper", parametersToReport);
+                    r.setVisible(true);
+
+                    save_transaction();
+                    loadSalesmanToComboAndAllTables();
+                    clearWholeWindow();
+
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "Please insert items to the order list to proceed.");
+            }
+        }
+
+    }//GEN-LAST:event_saveAndPrint_btnActionPerformed
+
+    private void trans_srch_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_trans_srch_btnActionPerformed
+        MySqlDBConnect db = new MySqlDBConnect();
+        db.connectDB();
+        db.searchTransactionsTable(trans_srch_txt.getText());
+        db.closeConnection();
+    }//GEN-LAST:event_trans_srch_btnActionPerformed
+
+
+    private void trans_reset_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_trans_reset_btnActionPerformed
+        loadSalesmanToComboAndAllTables();
+        trans_srch_txt.setText("");
+    }//GEN-LAST:event_trans_reset_btnActionPerformed
+
+    private void prdct_srch_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prdct_srch_btnActionPerformed
+        MySqlDBConnect db = new MySqlDBConnect();
+        db.connectDB();
+        if (prdct_srch_cmb.getSelectedItem().toString().equals("Barcode")) {
+            db.searchProductTable(prdct_srch_txt.getText(), "barcode");
+        } else {
+            db.searchProductTable(prdct_srch_txt.getText(), "itemnum");
+        }
+        db.closeConnection();
+    }//GEN-LAST:event_prdct_srch_btnActionPerformed
+
+    private void prdct_reset_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prdct_reset_btnActionPerformed
+        loadSalesmanToComboAndAllTables();
+        prdct_srch_txt.setText("");
+    }//GEN-LAST:event_prdct_reset_btnActionPerformed
+
+    private void sup_srch_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sup_srch_btnActionPerformed
+        MySqlDBConnect db = new MySqlDBConnect();
+        db.connectDB();
+        db.searchSupplierTable(sup_srch_txt.getText());
+        db.closeConnection();
+    }//GEN-LAST:event_sup_srch_btnActionPerformed
+
+    private void sup_reset_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sup_reset_btnActionPerformed
+        loadSalesmanToComboAndAllTables();
+        sup_srch_txt.setText("");
+    }//GEN-LAST:event_sup_reset_btnActionPerformed
+
+    private void srch_cus_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_srch_cus_btnActionPerformed
+        MySqlDBConnect db = new MySqlDBConnect();
+        db.connectDB();
+        db.searchCustomerTable(srch_cus_txt.getText());
+        db.closeConnection();
+    }//GEN-LAST:event_srch_cus_btnActionPerformed
+
+    private void srch_cusreset_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_srch_cusreset_btnActionPerformed
+        loadSalesmanToComboAndAllTables();
+        srch_cus_txt.setText("");
+    }//GEN-LAST:event_srch_cusreset_btnActionPerformed
 
     public void save_transaction() {
         try {
@@ -1247,6 +1529,7 @@ public class MainClassUI extends javax.swing.JFrame {
     }
 
     public void clearWholeWindow() {
+
         DefaultTableModel tMOdel = (DefaultTableModel) productTable.getModel();
         tMOdel.setRowCount(0);
 
@@ -1280,31 +1563,22 @@ public class MainClassUI extends javax.swing.JFrame {
     public static javax.swing.JTextField barcode_txt;
     private javax.swing.JButton barcodeadd_btn;
     private javax.swing.JButton barcodecancel_btn;
+    private javax.swing.ButtonGroup buttonGroup1;
     public static javax.swing.JTable customerDisplayTable;
     private javax.swing.JTextField date_txt;
     private javax.swing.JTextField discount_txt;
     private static javax.swing.JTextField due_txt;
     private javax.swing.JButton editRowOrder_btn;
     private javax.swing.JMenuItem exitMenuItem;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton10;
-    private javax.swing.JButton jButton11;
-    private javax.swing.JButton jButton12;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton6;
-    private javax.swing.JButton jButton7;
-    private javax.swing.JButton jButton8;
-    private javax.swing.JButton jButton9;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
-    private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
+    private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -1335,24 +1609,35 @@ public class MainClassUI extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
-    private javax.swing.JTextField jTextField5;
     private javax.swing.JButton newOdr_btn;
+    public static javax.swing.JTextField orderid_txt;
     private static javax.swing.JTextField paid_txt;
+    private javax.swing.JButton prdct_reset_btn;
+    private javax.swing.JButton prdct_srch_btn;
+    private javax.swing.JComboBox<String> prdct_srch_cmb;
+    private javax.swing.JTextField prdct_srch_txt;
     public static javax.swing.JTable productDisplayTable;
-    private static javax.swing.JTable productTable;
+    public static javax.swing.JTable productTable;
     private javax.swing.JTextField quantity_txt;
     private javax.swing.JButton refreshAll_btn;
     private javax.swing.JButton removeRowOrder_btn;
     private static javax.swing.JComboBox<String> salesman_combo;
+    private javax.swing.JButton saveAndPrint_btn;
     private javax.swing.JButton saveOdr_btn;
+    private javax.swing.JButton saveToPDF_btn;
+    private javax.swing.JButton srch_cus_btn;
+    private javax.swing.JTextField srch_cus_txt;
+    private javax.swing.JButton srch_cusreset_btn;
+    private javax.swing.JButton sup_reset_btn;
+    private javax.swing.JButton sup_srch_btn;
+    private javax.swing.JTextField sup_srch_txt;
     public static javax.swing.JTable supplierDisplayTable;
     private javax.swing.JTextField time_txt;
     private static javax.swing.JLabel total_lbl;
     private static javax.swing.JTextField total_txt;
+    private javax.swing.JButton trans_reset_btn;
+    private javax.swing.JButton trans_srch_btn;
+    private javax.swing.JTextField trans_srch_txt;
     public static javax.swing.JTable transactionsDisplayTable;
     // End of variables declaration//GEN-END:variables
 
